@@ -1,0 +1,20 @@
+# prerequisites
+*.d
+
+# compiled object files
+*.o
+*.lo
+*.slo
+*.obj
+
+# build directories
+build/
+bin/
+out/
+
+#IDEs and editors
+.vscode/
+.idea/
+cmake-build-*/
+.DS_Store
+
