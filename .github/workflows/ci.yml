@@ -20,11 +20,7 @@ jobs:
               uses: actions/checkout@v4
         
             - name: Configure CMake
-              run: |
-                cmake -B build \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DBUILD_TESTING=ON \
-                -DBUILD_BENCHMARKS=ON
+              run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DBUILD_BENCHMARKS=ON
 
             - name: Build Targets
               run: cmake --build build --config Release
