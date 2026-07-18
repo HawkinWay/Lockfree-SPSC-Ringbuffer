@@ -13,6 +13,7 @@ bin/
 out/
 
 #IDEs and editors
+.vs/
 .vscode/
 .idea/
 cmake-build-*/
