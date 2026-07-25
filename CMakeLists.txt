@@ -4,6 +4,11 @@ project(SPSCRingbuffer VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# MSVC runtime
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif ()
+
 add_library(spsc_ring_buffer INTERFACE)
 
 target_include_directories(spsc_ring_buffer INTERFACE

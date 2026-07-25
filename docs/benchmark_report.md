@@ -46,3 +46,24 @@ Performance drops from:
 This provides the motivation for exploring acquire/release ordering and cache-line optimization.
 
 ---
+
+## v0.2 Optimization
+
+### 📈 SPSC RingBuffer Acquire-Release (Issue #3)
+
+* **Test Platform**: Apple M4 (10 Cores, macOS)
+* **Compiler**: Apple Clang (`-O3` Release)
+* **Memory Order**: `std::memory_order_relaxed`, `std::memory_order_release`, `std::memory_order_acquire`
+* **Alignment**: Default Non-alignment (Maybe have false sharing)
+
+| Capacity | Operation Latency(avg) | Throughput(ops/s) | 5-run std. dev. (CV) |
+|:---------|:-----------------------|:------------------|:---------------------|
+| **64** | ~15.46 ns              | **64.65 M/s** | 6.98%                |
+| **1024** | ~14.94 ns              | **66.95 M/s** | 9.37%                |
+| **4096** | ~16.52 ns              | **60.53 M/s** | 11.86%               |
+
+### 👀 Observation
+
+Switching from `seq_cst` to fine-grained Acquire-Release memory ordering yields only a minor performance gain (from **60.32M ops/s** to **66.95M ops/s**, ~10% improvement).
+
+This key observation reveals that instruction reordering and full memory barriers are **not the primary bottleneck** at this stage. Instead, the system is severely memory-bound due to **False Sharing**: `write_idx` and `read_idx` reside on the same 64-byte cache line, causing constant cache-line invalidation (cache ping-pong) between CPU cores via the MESI protocol.
