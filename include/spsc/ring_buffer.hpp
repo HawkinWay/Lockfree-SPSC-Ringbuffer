@@ -20,24 +20,37 @@ public:
     }
 
     // producer
-    bool push(const T& item) { 
-        if (full())  return false;
-        buffer_[write_idx.load() % capacity_] = item;
-        write_idx.fetch_add(1);     // write_idx++; is okay
+    bool push(const T& item) {
+        const size_t current_w = write_idx.load(std::memory_order_relaxed);
+        const size_t current_r = read_idx.load(std::memory_order_acquire);
+        if (current_w - current_r == capacity_)  return false;
+        buffer_[current_w % capacity_] = item;
+        write_idx.store(current_w + 1, std::memory_order_release);
         return true; 
     }
 
     // consumer
-    bool pop(T& item) { 
-        if (empty()) return false;
-        item = buffer_[read_idx.load() % capacity_];
-        read_idx.fetch_add(1);
+    bool pop(T& item) {
+        const size_t current_r = read_idx.load(std::memory_order_relaxed);
+        const size_t current_w = write_idx.load(std::memory_order_acquire);
+        if (current_w == current_r) return false;
+        item = buffer_[current_r % capacity_];
+        read_idx.store(current_r + 1, std::memory_order_release);
         return true;
     }
 
-    bool empty() const { return write_idx.load() == read_idx.load(); }
+    bool empty() const {
+        return write_idx.load(std::memory_order_relaxed) == read_idx.load(std::memory_order_relaxed);
+    }
+
     bool full() const { return size() == capacity_; }
-    size_t size() const { return write_idx.load() - read_idx.load(); }
+
+    size_t size() const {
+        // Approximate size in concurrent context.
+        // Not linearizable.
+        return write_idx.load(std::memory_order_relaxed) - read_idx.load(std::memory_order_relaxed);
+    }
+
     size_t capacity() const { return capacity_; }
 
 private:
