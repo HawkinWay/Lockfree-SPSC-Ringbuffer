@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <atomic>
+#include <new>
 
 namespace shovy{
 
@@ -56,8 +57,8 @@ public:
 private:
     T* buffer_;
     size_t capacity_;
-    std::atomic<size_t> write_idx{0};
-    std::atomic<size_t> read_idx{0};
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> write_idx{0};
+    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> read_idx{0};
 };
 
 }   // namespace shovy
