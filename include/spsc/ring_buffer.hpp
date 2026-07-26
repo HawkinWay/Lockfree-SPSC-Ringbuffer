@@ -10,8 +10,8 @@ template<typename T>
 class RingBuffer{
 public:
     explicit RingBuffer(size_t capacity) : capacity_(capacity) {
-        if (capacity_ == 0) {
-            throw std::invalid_argument("RingBuffer capacity must be > 0");
+        if (capacity_ == 0 || (capacity_ & (capacity_ - 1)) != 0) {
+            throw std::invalid_argument("RingBuffer capacity must be > 0 and a power of two");
         }
         buffer_ = new T[capacity_];
     }
@@ -25,7 +25,7 @@ public:
         const size_t current_w = write_idx.load(std::memory_order_relaxed);
         const size_t current_r = read_idx.load(std::memory_order_acquire);
         if (current_w - current_r == capacity_)  return false;
-        buffer_[current_w % capacity_] = item;
+        buffer_[current_w & (capacity_ - 1)] = item;
         write_idx.store(current_w + 1, std::memory_order_release);
         return true; 
     }
@@ -35,7 +35,7 @@ public:
         const size_t current_r = read_idx.load(std::memory_order_relaxed);
         const size_t current_w = write_idx.load(std::memory_order_acquire);
         if (current_w == current_r) return false;
-        item = buffer_[current_r % capacity_];
+        item = buffer_[current_r & (capacity_ - 1)];
         read_idx.store(current_r + 1, std::memory_order_release);
         return true;
     }

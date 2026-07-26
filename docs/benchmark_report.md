@@ -72,6 +72,33 @@ This clearly motivates the use of **weaker memory ordering** (`acquire`/`release
 | **1024** | ~6.43 ns                | **155.60 M/s**     | ±1.92 M/s (1.23%)    |
 | **4096** | ~6.68 ns                | **149.81 M/s**     | ±4.28 M/s (2.86%)    |
 
+### 📈 SPSC RingBuffer Power-of-Two Bitwise AND (Issue #5)
+
+* **Memory Order**: `acquire`/`release` (same as #3)
+* **Alignment**: `alignas(std::hardware_destructive_interference_size)` (same as #4)
+* **Key Optimization**: Replaced modulo operation % capacity with bitwise AND & (capacity - 1), requiring capacity to be a power of two
+
+
+| Capacity | Operation Latency (avg) | Throughput (ops/s) | 5-run Std. Dev. (CV) |
+|:---------|:------------------------|:-------------------|:---------------------|
+| **64**   | ~12.34 ns               | **81.038 M/s**      | ±2.03 M/s (2.51%)    |
+| **1024** | ~5.34 ns                | **187.27 M/s**     | ±4.09 M/s (2.18%)    |
+| **4096** | ~5.87 ns                | **170.23 M/s**     | ±15.26 M/s (8.96%)    |
+
+### 👀 Observation
+
+Significant throughput gains at large capacities: At capacity 1024, throughput jumps from 155.6 M/s (#4) to 187.27 M/s—a ~20.3% improvement. At capacity 4096, it improves from 149.8 M/s to 170.26 M/s (~13.6% gain). This clearly demonstrates the benefit of eliminating integer division (div instruction), which typically takes 20–30 CPU cycles, whereas & completes in a single cycle.
+
+Regression at small capacity (64): Throughput drops from 89.98 M/s to 81.03 M/s (~10% decrease). Possible explanations:
+
+- At tiny capacities, the buffer frequently hits full/empty states, where branch misprediction overhead dominates and masks the gain from bitwise operations.
+- Poor cache prefetching at small buffer sizes may cause the CPU to stall while waiting for memory coherence, negating the benefit of faster arithmetic.
+- The high CV (8.96%) at capacity 4096 indicates greater performance variability under large buffers, possibly due to system load or CPU dynamic frequency scaling.
+
+Engineering trade-off: This optimization requires capacity to be a power of two (otherwise & (capacity - 1) produces incorrect results). This is a classic space-for-time strategy—ideal for performance-critical scenarios where buffer sizes can be pre-aligned (e.g., network packet pools, memory pools). Applications requiring arbitrary prime capacities must retain the modulo operator.
+
+
+
 ---
 
 ## 🔍 Analysis
@@ -90,7 +117,8 @@ This clearly motivates the use of **weaker memory ordering** (`acquire`/`release
 - On the AMD Ryzen platform, false sharing may not be the dominant bottleneck because the L3 cache is shared and the CPU handles MESI protocol efficiently.
 - However, alignment remains a **defensive measure** that prevents unpredictable performance cliffs when the system is under heavy load.
 
-
 ---
 
-*Benchmark #1 ~ #4 executed on 2026‑07‑25. All results are reproducible using the provided Google Benchmark suite.*
+*Benchmark #1 ~ #4 executed on 2026‑07‑25.*  
+*Benchmark #5 executed on 2026‑07‑26.*  
+*All results are reproducible using the provided Google Benchmark suite.*
