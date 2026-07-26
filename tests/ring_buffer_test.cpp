@@ -35,6 +35,19 @@ TEST(RingBufferTest, BasicOperations){
     EXPECT_TRUE(rb.full());
 }
 
+TEST(RingBufferTest, RejectNonPowerOfTwoCapacity){
+    EXPECT_THROW(
+	shovy::RingBuffer<int> buffer(100),
+	std::invalid_argument
+    );
+}
+
+TEST(RingBufferTest, AcceptPowerOfTwoCapacity){
+    EXPECT_NO_THROW(
+	shovy::RingBuffer<int> buffer(1024);
+    );
+}
+
 TEST(RingBufferTest, MultiThreadDataRaceDemonstration){
     const size_t count = 10'000'000;
     shovy::RingBuffer<size_t> buffer(1024);
