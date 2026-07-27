@@ -40,6 +40,46 @@ public:
         return true;
     }
 
+    size_t push_batch(const T *src, size_t count) {
+        const size_t current_w = write_idx.load(std::memory_order_relaxed);
+        const size_t current_r = read_idx.load(std::memory_order_acquire);
+        size_t available = capacity_ - (current_w - current_r);
+        size_t writeNum = std::min(count, available);
+        
+        if (writeNum == 0)      return 0;
+        const size_t startW = current_w & (capacity_ - 1);
+        const size_t length1 = std::min(capacity_ - startW, writeNum);
+        std::memcpy(buffer_ + startW, src, length1 * sizeof(T));
+
+        if (writeNum > length1) {
+            const size_t length2 = writeNum - length1;
+            std::memcpy(buffer_, src + length1, length2 * sizeof(T));
+        }
+
+        write_idx.store(current_w + writeNum, std::memory_order_release);
+        return writeNum;
+    }
+
+    size_t pop_batch(T* dest, size_t count) {
+        const size_t current_r = read_idx.load(std::memory_order_relaxed);
+        const size_t current_w = write_idx.load(std::memory_order_acquire);
+        size_t available = current_w - current_r;
+        size_t readNum = std::min(available, count);
+
+        if (readNum == 0)    return 0;
+        const size_t startR = current_r & (capacity_ - 1);
+        const size_t length1 = std::min(capacity_ - startR, readNum);
+        std::memcpy(dest, buffer_ + startR, length1 * sizeof(T));
+
+        if (readNum > length1) {
+            const size_t length2 = readNum - length1;
+            std::memcpy(dest + length1, buffer_, length2 * sizeof(T));
+        }
+
+        read_idx.store(current_r + readNum, std::memory_order_release);
+        return readNum;
+    }
+
     bool empty() const {
         return write_idx.load(std::memory_order_relaxed) == read_idx.load(std::memory_order_relaxed);
     }
