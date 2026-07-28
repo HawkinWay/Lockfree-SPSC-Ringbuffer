@@ -8,6 +8,9 @@ FetchContent_Declare(
 set(gtest_force_shared_ctr ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+if(BUILD_COMPILE_FAIL_TESTS)
+    add_subdirectory(compile_fail)
+endif()
 
 add_executable(ring_buffer_test ring_buffer_test.cpp)
 
