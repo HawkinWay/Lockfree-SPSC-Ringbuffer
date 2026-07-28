@@ -18,6 +18,7 @@ target_include_directories(spsc_ring_buffer INTERFACE
 
 option(BUILD_TESTING "Build unit test" ON)
 option(BUILD_BENCHMARKS "Build microbenchmarks" ON)
+option(BUILD_COMPILE_FAIL_TESTS "Build compile failure tests" OFF)
 
 if(BUILD_TESTING)
     enable_testing()
