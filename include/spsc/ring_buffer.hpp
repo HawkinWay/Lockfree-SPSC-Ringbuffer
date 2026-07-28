@@ -5,11 +5,22 @@
 #include <new>
 #include <cstring>
 #include <algorithm>
+#include <type_traits>
 
 namespace shovy{
 
 template<typename T>
 class RingBuffer{
+    static_assert(std::is_trivially_copyable_v<T>, "RingBuffer only supports trivially copyable types");
+    
+    static_assert(std::atomic<size_t>::is_always_lock_free, "RingBuffer requires lock-free atomic operations");
+
+#if defined(__cpp_lib_hardware_interference_size)
+    static constexpr size_t CacheLineSize = std::hardware_destructive_interference_size;
+#else
+    static constexpr size_t CacheLineSize = 64; // Fallback default for x86_64/ARM
+#endif
+
 public:
     explicit RingBuffer(size_t capacity) : capacity_(capacity) {
         if (capacity_ == 0 || (capacity_ & (capacity_ - 1)) != 0) {
@@ -99,8 +110,8 @@ public:
 private:
     T* buffer_;
     size_t capacity_;
-    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> write_idx{0};
-    alignas(std::hardware_destructive_interference_size) std::atomic<size_t> read_idx{0};
+    alignas(CacheLineSize) std::atomic<size_t> write_idx{0};
+    alignas(CacheLineSize) std::atomic<size_t> read_idx{0};
 };
 
 }   // namespace shovy
