@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <atomic>
 #include <new>
+#include <cstring>
 
 namespace shovy{
 
