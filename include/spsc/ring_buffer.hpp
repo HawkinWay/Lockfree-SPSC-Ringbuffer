@@ -4,6 +4,7 @@
 #include <atomic>
 #include <new>
 #include <cstring>
+#include <algorithm>
 
 namespace shovy{
 
