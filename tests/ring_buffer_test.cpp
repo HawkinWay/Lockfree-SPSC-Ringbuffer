@@ -149,3 +149,29 @@ TEST(RingBufferTest, BatchPopPartialWhenEmpty){
 	EXPECT_EQ(buffer.pop_batch(output, 8), 4);
 	EXPECT_TRUE(buffer.empty());
 }
+
+TEST(RingBufferTest, SupportsTriviallyCopyableTypes){
+	shovy::RingBuffer<int> intBuffer(64);
+	shovy::RingBuffer<float> floatBuffer(64);
+	shovy::RingBuffer<size_t> sizeBuffer(64);
+
+	EXPECT_EQ(intBuffer.capacity(), 64);
+	EXPECT_EQ(floatBuffer.capacity(), 64);
+	EXPECT_EQ(sizeBuffer.capacity(), 64);
+}
+
+TEST(RingBufferTest, SupportsAudioFrame)
+{
+    struct AudioFrame {
+        float left;
+        float right;
+    };
+
+    shovy::RingBuffer<AudioFrame> buffer(64);
+
+    EXPECT_EQ(buffer.capacity(), 64);
+
+    static_assert(std::is_trivially_copyable_v<AudioFrame>);
+    static_assert(!std::is_trivially_copyable_v<std::string>);
+    static_assert(!std::is_trivially_copyable_v<std::vector<int>>);
+}
