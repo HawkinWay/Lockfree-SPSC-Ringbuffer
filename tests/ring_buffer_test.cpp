@@ -85,3 +85,67 @@ TEST(RingBufferTest, MultiThreadDataRaceDemonstration){
     }
 
 }
+
+TEST(RingBufferTest, BasicBatchOperations){
+	shovy::RingBuffer<int> buffer(16);
+	EXPECT_EQ(buffer.capacity(), 16);
+	EXPECT_TRUE(buffer.empty());
+
+	int data[8] = {0,1,2,3,4,5,6,7};
+	int out[8] = {0};
+
+	EXPECT_EQ(buffer.push_batch(data, 8), 8);
+	EXPECT_FALSE(buffer.full());
+	EXPECT_FALSE(buffer.empty());
+
+	EXPECT_EQ(buffer.pop_batch(out, 8), 8);
+	EXPECT_TRUE(buffer.empty());
+
+	for(int i = 0; i < 8; i++){
+		EXPECT_EQ(out[i], data[i]);
+	}
+
+}
+
+TEST(RingBufferTest, BatchWrapAround) {
+    shovy::RingBuffer<int> buffer(16);
+
+    int dummy[14] = {};
+    int out[14] = {};
+    buffer.push_batch(dummy, 14);
+    buffer.pop_batch(out, 14);
+
+    int input[8] = {10,20,30,40,50,60,70,80};
+    EXPECT_EQ(buffer.push_batch(input, 8), 8);
+
+    int output[8] = {};
+    EXPECT_EQ(buffer.pop_batch(output, 8), 8);
+
+    for(int i = 0; i < 8; i++) {
+        EXPECT_EQ(output[i], input[i]);
+    }
+}
+
+
+TEST(RingBufferTest, BatchPushPartialWhenFull){
+	shovy::RingBuffer<int> buffer(8);
+
+	int input[16] = {};
+
+	EXPECT_EQ(buffer.push_batch(input, 16), 8);
+	EXPECT_TRUE(buffer.full());
+
+	EXPECT_EQ(buffer.push_batch(input, 4), 0);
+}
+
+TEST(RingBufferTest, BatchPopPartialWhenEmpty){
+	shovy::RingBuffer<int> buffer(8);
+
+	int input[4] = {1,2,3,4};
+	int output[8] = {};
+
+	buffer.push_batch(input, 4);
+
+	EXPECT_EQ(buffer.pop_batch(output, 8), 4);
+	EXPECT_TRUE(buffer.empty());
+}
