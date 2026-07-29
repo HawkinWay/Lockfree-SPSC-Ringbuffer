@@ -26,11 +26,17 @@ public:
         if (capacity_ == 0 || (capacity_ & (capacity_ - 1)) != 0) {
             throw std::invalid_argument("RingBuffer capacity must be > 0 and a power of two");
         }
-        buffer_ = new T[capacity_];
+
+        buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
     }
 
-    ~RingBuffer() {
-        delete[]buffer_;
+    RingBuffer(const RingBuffer& other) = delete;
+    RingBuffer& operator=(const RingBuffer& other) = delete;
+    RingBuffer(RingBuffer&& other) = delete;
+    RingBuffer& operator=(RingBuffer&& other) = delete;
+
+    ~RingBuffer() noexcept{
+        ::operator delete(buffer_);     // this's safe because T is trivially_copyable
     }
 
     // producer
@@ -38,7 +44,8 @@ public:
         const size_t current_w = write_idx.load(std::memory_order_relaxed);
         const size_t current_r = read_idx.load(std::memory_order_acquire);
         if (current_w - current_r == capacity_)  return false;
-        buffer_[current_w & (capacity_ - 1)] = item;
+        // buffer_[current_w & (capacity_ - 1)] = item;
+        std::memcpy(&buffer_[current_w & (capacity_ - 1)], &item, sizeof(T));
         write_idx.store(current_w + 1, std::memory_order_release);
         return true; 
     }
@@ -48,7 +55,8 @@ public:
         const size_t current_r = read_idx.load(std::memory_order_relaxed);
         const size_t current_w = write_idx.load(std::memory_order_acquire);
         if (current_w == current_r) return false;
-        item = buffer_[current_r & (capacity_ - 1)];
+        // item = buffer_[current_r & (capacity_ - 1)];
+        std::memcpy(&item, &buffer_[current_r & (capacity_ - 1)], sizeof(T));
         read_idx.store(current_r + 1, std::memory_order_release);
         return true;
     }
@@ -108,8 +116,8 @@ public:
     size_t capacity() const { return capacity_; }
 
 private:
-    T* buffer_;
-    size_t capacity_;
+    T* buffer_{nullptr};
+    const size_t capacity_;
     alignas(CacheLineSize) std::atomic<size_t> write_idx{0};
     alignas(CacheLineSize) std::atomic<size_t> read_idx{0};
 };
