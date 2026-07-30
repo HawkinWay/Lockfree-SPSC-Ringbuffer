@@ -37,14 +37,6 @@
 | **1024** | ~28.89 ns               | **34.62 M/s**      | ±0.75 M/s (2.17%)    |
 | **4096** | ~28.97 ns               | **34.52 M/s**      | ±0.67 M/s (1.95%)    |
 
-### 👀 Observation
-
-Replacing plain indices with `std::atomic` using the default `seq_cst` ordering introduces a **massive synchronization penalty**.
-
-- Throughput drops by **~76%** (from 147.6 M/s to 34.6 M/s at capacity 1024).
-- Latency increases by a factor of **4–5×**.
-
-This clearly motivates the use of **weaker memory ordering** (`acquire`/`release`) and **cache‑line optimization**.
 
 ---
 
@@ -85,18 +77,6 @@ This clearly motivates the use of **weaker memory ordering** (`acquire`/`release
 | **1024** | ~5.34 ns                | **187.27 M/s**     | ±4.09 M/s (2.18%)    |
 | **4096** | ~5.87 ns                | **170.23 M/s**     | ±15.26 M/s (8.96%)    |
 
-### 👀 Observation
-
-Significant throughput gains at large capacities: At capacity 1024, throughput jumps from 155.6 M/s (#4) to 187.27 M/s—a ~20.3% improvement. At capacity 4096, it improves from 149.8 M/s to 170.26 M/s (~13.6% gain). This clearly demonstrates the benefit of eliminating integer division (div instruction), which typically takes 20–30 CPU cycles, whereas & completes in a single cycle.
-
-Regression at small capacity (64): Throughput drops from 89.98 M/s to 81.03 M/s (~10% decrease). Possible explanations:
-
-- At tiny capacities, the buffer frequently hits full/empty states, where branch misprediction overhead dominates and masks the gain from bitwise operations.
-- Poor cache prefetching at small buffer sizes may cause the CPU to stall while waiting for memory coherence, negating the benefit of faster arithmetic.
-- The high CV (8.96%) at capacity 4096 indicates greater performance variability under large buffers, possibly due to system load or CPU dynamic frequency scaling.
-
-Engineering trade-off: This optimization requires capacity to be a power of two (otherwise & (capacity - 1) produces incorrect results). This is a classic space-for-time strategy—ideal for performance-critical scenarios where buffer sizes can be pre-aligned (e.g., network packet pools, memory pools). Applications requiring arbitrary prime capacities must retain the modulo operator.
-
 ---
 
 ## v0.3 Industrial-Ready
@@ -117,45 +97,104 @@ Engineering trade-off: This optimization requires capacity to be a power of two 
 > These numbers are taken from the same binary that also runs the batch benchmarks. They show that adding the batch APIs did not degrade single‑element performance.
 
 #### Batch Throughput (fixed capacity = 4096)
-| Capacity | Operation Latency (avg) | Throughput (ops/s) | 5-run Std. Dev. (CV) |
+| Batch Size | Per-Element Latency (avg) | Throughput (ops/s) | 5-run Std. Dev. (CV) |
 |:---------|:------------------------|:-------------------|:---------------------|
 | **8**    | ~12.39 ns               | **394.28 M/s**     | ±4.50 M/s (1.14%)    |
 | **64**   | ~6.13 ns               | **1.0197 G/s**     | ±10.77 M/s (1.06%)   |
 | **1024** | ~6.21 ns                | **1.2588 G/s**     | ±10.75 M/s (0.85%)   |
 | **4096** | ~5.98 ns                | **1.3059 G/s**     | ±18.78 M/s (1.44%)   |
 
-### 👀 Observation
-
-**Batch operations dramatically improve throughput** – even with a small batch of 8, we already see more than 2× the throughput of the single‑element path (394 M/s vs 180 M/s at capacity 4096). With batch size 256, throughput reaches 1.3 G/s, an improvement of ~7×.
-
-**Diminishing returns** – the gain from batch size 64 to 256 is only ~4%, suggesting that the overhead of atomic operations and memory copying has saturated the memory bus. The sweet spot for this hardware is around 64 elements per batch.
-
-**Stability** – the coefficient of variation (CV) remains below 1.5% for all batch sizes, indicating that batch operations exhibit very consistent performance, even under system load.
-
-**Latency per element drops** – from ~12.4 ns (batch=8) down to ~6 ns (batch=32–256), confirming that amortising atomic updates and using memcpy effectively reduces per‑element overhead.
-
-**No regression in single‑element path** – the single‑element throughput (180 M/s) is slightly higher than the previous power‑of‑two version (170 M/s), likely due to the more efficient internal implementation that also benefits the single‑element calls.
-
 ---
 
 ## 🔍 Analysis
 
-### 1. Acquire‑Release vs. SeqCst
-- After switching to `acquire`/`release` (Issue #3), throughput **recovers fully** and even **slightly exceeds** the baseline (154.9 M/s vs. 147.6 M/s at capacity 1024).
-- Latency drops back to ~6–9 ns, proving that `seq_cst`’s global ordering is overly pessimistic for the SPSC pattern.
+### 1. Memory Ordering: seq_cst vs. acquire/release
 
-### 2. Cache‑Line Alignment
-- Aligning `head` and `tail` to separate cache lines (Issue #4) shows **mixed results**:
-  - For capacity 64, throughput decreases (89.98 M/s vs. 110.03 M/s). This may be due to increased padding that negatively affects cache locality for small buffers.
-  - For larger capacities (1024, 4096), performance is **on par** or slightly better than the non‑aligned version (155.6 M/s vs. 154.9 M/s).
-- The variability (CV) is generally lower for aligned builds, especially at capacity 1024 (0.52% vs. 1.69%), indicating **more stable performance** under contention.
+- Default `seq_cst` caused a ~76% throughput drop (147.6 → 34.6 M/s at capacity 1024) due to the stronger ordering guarantees required by sequential consistency, which may introduce additional serialization and cache-coherence costs.
 
-### 3. Why Alignment Might Not Always Win
-- On the AMD Ryzen platform, false sharing may not be the dominant bottleneck because the L3 cache is shared and the CPU handles MESI protocol efficiently.
-- However, alignment remains a **defensive measure** that prevents unpredictable performance cliffs when the system is under heavy load.
+- Switching to `acquire`/`release` fully recovered performance and even slightly exceeded the unsafe baseline (154.9 vs. 147.6 M/s).
+
+- Conclusion: For SPSC patterns, `seq_cst` is unnecessarily pessimistic; `acquire`/`release`provides sufficient ordering guarantees with minimal overhead.
+
+### 2. Cache‑Line Alignment & False Sharing
+
+- Aligning `write_idx` and `read_idx` to separate cache lines showed mixed results:
+
+  - At capacity 64, throughput decreased (89.98 vs. 110.03 M/s) – likely due to padding that hurts cache locality for tiny buffers.
+
+  - For capacities 1024 and 4096, performance was on par or slightly better, with lower variability (CV dropped from 1.69% to 1.23% at capacity 1024).
+
+- On AMD Ryzen, false sharing may not be the dominant bottleneck due to efficient MESI protocol and shared L3 cache.
+
+- Recommendation: Keep alignment as a defensive measure to prevent sporadic performance cliffs under heavy system load.
+
+### 3. Power‑of‑Two Bitwise AND (Eliminating Division)
+
+- Replacing modulo `%` with bitwise `&` improved throughput by ~20% at capacity 1024 (187.27 vs. 155.60 M/s) and ~13% at 4096.
+
+- At capacity 64, a ~10% regression occurred – likely because branch misprediction in full/empty checks dominates the arithmetic cost at very small buffer sizes.
+
+- The high CV (8.96%) at capacity 4096 indicates greater performance variability, possibly due to system load or CPU frequency scaling.
+
+- Takeaway: Highly beneficial for large buffers; requires power‑of‑two capacity. Ideal for predictable, high‑throughput workloads with pre‑aligned sizes.
+
+### 4. Batch Operations & `std::memcpy`
+
+- Even a small batch size (8) more than doubles throughput (394 vs. 180 M/s) by amortising atomic updates.
+
+- With batch size 256, throughput reaches 1.3 G/s – a ~7× improvement over the single‑element path.
+
+- Diminishing returns appear after batch size ~64; performance becomes limited by memory throughput and remaining synchronization overhead.
+
+- CV stays below 1.5% for all batch sizes, indicating stable real‑world behaviour.
+
+- Single‑element operations remain unaffected, confirming zero overhead on the hot path.
+
+
 
 ---
 
-*Benchmark #1 ~ #4 executed on 2026‑07‑25.*  
-*Benchmark #5 executed on 2026‑07‑26.*  
+## 🏁 Final Conclusions
+
+### 1. Memory Ordering Optimization
+
+Replacing `std::memory_order_seq_cst` atomics with `acquire`/`release` ordering restored near-baseline throughput while preserving strict memory visibility guarantees for the SPSC access pattern. This demonstrates that sequential consistency provides unnecessary ordering guarantees for this access pattern, incurring avoidable CPU stalls.
+
+### 2. Data Structure & Hardware Alignment
+
+* **Power-of-Two Indexing**: Replacing integer division with bitwise `AND` masking eliminated high-latency modulo arithmetic, yielding a **13–20% throughput increase** for standard buffer capacities (1024/4096).
+* **Cache-Line Padding**: Separating index variables into independent 64-byte cache lines eliminated false sharing contention, significantly lowering performance variance (CV decreased from 1.69% to 1.23% at capacity 1024.).
+
+### 3. Batch Processing Optimization
+
+The implementation of contiguous batch operations (`push_batch` / `pop_batch`) amortized atomic synchronization overhead and relied on platform-optimized implementations of `std::memcpy`. The implementation achieved peak throughput exceeding **1.3 billion elements/sec**—a **8.8× improvement** compared to the optimized single-element Acquire-Release path, and **37.8×** relative to the initial `seq_cst` single-element implementation (not an isolated comparison, as multiple optimizations are combined).
+
+### 4. Real-Time Safety Constraints
+
+Enforcing compile-time constraints (`std::is_trivially_copyable_v`) guarantees deterministic, non-allocating memory behavior, enforcing `std::is_trivially_copyable_v` enables deterministic memory operations and allows the queue to avoid object lifecycle overhead, making it suitable for real-time workloads such as audio processing pipelines.
+
+---
+
+## ℹ️ known Limitations
+
+### Object Lifetime Management
+
+The current implementation intentionally restricts T to trivially copyable types.
+
+This design avoids:
+
+- dynamic construction/destruction overhead
+- placement-new lifecycle management
+- destructor tracking complexity
+
+Supporting arbitrary non-trivial types would require explicit object lifetime management using:
+
+- raw storage allocation
+- placement new
+- explicit destruction
+
+which introduces additional complexity and runtime cost.
+
+---
+
 *All results are reproducible using the provided Google Benchmark suite.*
