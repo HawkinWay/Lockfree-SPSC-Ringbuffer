@@ -1,0 +1,188 @@
+2026-10-14T17:18:29+08:00
+Running ./latency-build/benchmarks/ring_buffer_bench
+Run on (16 X 4816.41 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x8)
+  L1 Instruction 32 KiB (x8)
+  L2 Unified 1024 KiB (x8)
+  L3 Unified 16384 KiB (x1)
+Load Average: 1.15, 0.64, 0.51
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                                              Time             CPU   Iterations UserCounters...
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_mean                                   465062385 ns        23212 ns           15 items_per_second=43.1375M/s
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_median                                 452343113 ns        23111 ns           15 items_per_second=44.2142M/s
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_stddev                                  27092599 ns         7048 ns           15 items_per_second=2.43951M/s
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_cv                                          5.83 %         30.36 %            15 items_per_second=5.66%
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_mean                                 460758856 ns        19329 ns           15 items_per_second=43.4436M/s
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_median                               460058263 ns        18894 ns           15 items_per_second=43.4728M/s
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_stddev                                13852282 ns         2054 ns           15 items_per_second=1.31701M/s
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_cv                                        3.01 %         10.63 %            15 items_per_second=3.03%
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_mean                                 478257848 ns        17789 ns           15 items_per_second=41.855M/s
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_median                               476081030 ns        17846 ns           15 items_per_second=42.0097M/s
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_stddev                                14746899 ns         2707 ns           15 items_per_second=1.27196M/s
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_cv                                        3.08 %         15.22 %            15 items_per_second=3.04%
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_mean                                    69942793 ns        16190 ns           15 items_per_second=286.06M/s
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_median                                  70275066 ns        15839 ns           15 items_per_second=284.596M/s
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_stddev                                   1431398 ns         1360 ns           15 items_per_second=5.85624M/s
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_cv                                          2.05 %          8.40 %            15 items_per_second=2.05%
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_mean                                  70241220 ns        16690 ns           15 items_per_second=284.792M/s
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_median                                70171414 ns        16794 ns           15 items_per_second=285.016M/s
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_stddev                                 1045056 ns         1121 ns           15 items_per_second=4.22086M/s
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_cv                                        1.49 %          6.72 %            15 items_per_second=1.48%
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_mean                                  70668647 ns        16629 ns           15 items_per_second=283.051M/s
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_median                                70679861 ns        16617 ns           15 items_per_second=282.966M/s
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_stddev                                  873859 ns         1034 ns           15 items_per_second=3.49918M/s
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_cv                                        1.24 %          6.22 %            15 items_per_second=1.24%
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_mean                                    69911844 ns        16147 ns           15 items_per_second=286.105M/s
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_median                                  69982988 ns        15666 ns           15 items_per_second=285.784M/s
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_stddev                                    751605 ns         1178 ns           15 items_per_second=3.07832M/s
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_cv                                          1.08 %          7.29 %            15 items_per_second=1.08%
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_mean                                  70763289 ns        17436 ns           15 items_per_second=282.643M/s
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_median                                70846638 ns        17223 ns           15 items_per_second=282.3M/s
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_stddev                                  446925 ns         1244 ns           15 items_per_second=1.78739M/s
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_cv                                        0.63 %          7.14 %            15 items_per_second=0.63%
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_mean                                  74634426 ns        16996 ns           15 items_per_second=267.98M/s
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_median                                74728461 ns        17035 ns           15 items_per_second=267.636M/s
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_stddev                                  387189 ns          874 ns           15 items_per_second=1.39339M/s
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_cv                                        0.52 %          5.14 %            15 items_per_second=0.52%
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_mean                                    69083037 ns        17646 ns           15 items_per_second=289.521M/s
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_median                                  69084193 ns        17348 ns           15 items_per_second=289.502M/s
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_stddev                                    503196 ns         1533 ns           15 items_per_second=2.10917M/s
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_cv                                          0.73 %          8.69 %            15 items_per_second=0.73%
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_mean                                  71511279 ns        16777 ns           15 items_per_second=279.699M/s
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_median                                71696635 ns        16859 ns           15 items_per_second=278.953M/s
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_stddev                                  662955 ns         1218 ns           15 items_per_second=2.6172M/s
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_cv                                        0.93 %          7.26 %            15 items_per_second=0.94%
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_mean                                  74909038 ns        16786 ns           15 items_per_second=267.006M/s
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_median                                75068428 ns        16608 ns           15 items_per_second=266.424M/s
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_stddev                                  597754 ns         1530 ns           15 items_per_second=2.13905M/s
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_cv                                        0.80 %          9.11 %            15 items_per_second=0.80%
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_mean                                    60875860 ns        16485 ns           15 items_per_second=328.574M/s
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_median                                  60845459 ns        16356 ns           15 items_per_second=328.702M/s
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_stddev                                    661750 ns         1024 ns           15 items_per_second=3.57679M/s
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_cv                                          1.09 %          6.21 %            15 items_per_second=1.09%
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_mean                                  69031017 ns        16429 ns           15 items_per_second=289.834M/s
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_median                                68690599 ns        16363 ns           15 items_per_second=291.161M/s
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_stddev                                 1388704 ns         1144 ns           15 items_per_second=5.83606M/s
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_cv                                        2.01 %          6.96 %            15 items_per_second=2.01%
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_mean                                  76722265 ns        16441 ns           15 items_per_second=260.736M/s
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_median                                77213635 ns        16703 ns           15 items_per_second=259.022M/s
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_stddev                                 1157401 ns         1182 ns           15 items_per_second=3.96302M/s
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_cv                                        1.51 %          7.19 %            15 items_per_second=1.52%
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_mean                                    60751529 ns        15261 ns           15 items_per_second=329.271M/s
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_median                                  60724452 ns        15287 ns           15 items_per_second=329.357M/s
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_stddev                                    855125 ns         1097 ns           15 items_per_second=4.65088M/s
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_cv                                          1.41 %          7.19 %            15 items_per_second=1.41%
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_mean                                  69614961 ns        16063 ns           15 items_per_second=287.385M/s
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_median                                69492272 ns        15619 ns           15 items_per_second=287.802M/s
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_stddev                                 1282493 ns         1334 ns           15 items_per_second=5.28052M/s
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_cv                                        1.84 %          8.30 %            15 items_per_second=1.84%
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_mean                                  77496831 ns        16781 ns           15 items_per_second=258.148M/s
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_median                                77809006 ns        16764 ns           15 items_per_second=257.04M/s
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_stddev                                 1344439 ns         1269 ns           15 items_per_second=4.52524M/s
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_cv                                        1.73 %          7.56 %            15 items_per_second=1.75%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_mean                           32765593 ns        13877 ns           15 items_per_second=625.242M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_median                         36270803 ns        13625 ns           15 items_per_second=551.408M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_stddev                          5072140 ns          913 ns           15 items_per_second=102.79M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_cv                                15.48 %          6.58 %            15 items_per_second=16.44%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_mean                          12223104 ns        10855 ns           15 items_per_second=1.63629G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_median                        12211074 ns        10807 ns           15 items_per_second=1.63786G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_stddev                           67273 ns          625 ns           15 items_per_second=8.98765M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_cv                                0.55 %          5.76 %            15 items_per_second=0.55%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_mean                          11388041 ns        10762 ns           15 items_per_second=1.75626G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_median                        11382027 ns        10820 ns           15 items_per_second=1.75716G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_stddev                           52464 ns          870 ns           15 items_per_second=8.09684M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_cv                                0.46 %          8.09 %            15 items_per_second=0.46%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_mean                          8107324 ns         9577 ns           15 items_per_second=2.46766G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_median                        8160210 ns         9560 ns           15 items_per_second=2.45092G/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_stddev                         145826 ns          556 ns           15 items_per_second=44.9155M/s
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_cv                               1.80 %          5.81 %            15 items_per_second=1.82%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_mean                           35060979 ns        13898 ns           15 items_per_second=570.581M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_median                         35026935 ns        13975 ns           15 items_per_second=570.989M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_stddev                           580053 ns         1073 ns           15 items_per_second=9.47089M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_cv                                 1.65 %          7.72 %            15 items_per_second=1.66%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_mean                          11441944 ns        10737 ns           15 items_per_second=1.76088G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_median                        12164464 ns        10788 ns           15 items_per_second=1.64413G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_stddev                          997436 ns          758 ns           15 items_per_second=158.929M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_cv                                8.72 %          7.06 %            15 items_per_second=9.03%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_mean                          10302402 ns        10589 ns           15 items_per_second=1.97354G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_median                        11292232 ns        10908 ns           15 items_per_second=1.77113G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_stddev                         1328207 ns          725 ns           15 items_per_second=267.971M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_cv                               12.89 %          6.85 %            15 items_per_second=13.58%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_mean                          7865984 ns         9767 ns           15 items_per_second=2.54658G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_median                        8015316 ns         9711 ns           15 items_per_second=2.49522G/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_stddev                         321124 ns          641 ns           15 items_per_second=104.619M/s
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_cv                               4.08 %          6.56 %            15 items_per_second=4.11%
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      637034004 ns        20373 ns           15 max_ns=26.1209k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/64/iterations:1/repeats:15/real_time_median    646405611 ns        19743 ns           15 max_ns=24.933k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev     18048515 ns         3044 ns           15 max_ns=13.8609k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             2.83 %         14.94 %            15 max_ns=53.06% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    754060884 ns        19810 ns           15 max_ns=50.1044k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.77073k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  752827900 ns        19863 ns           15 max_ns=52.242k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    4933177 ns         2660 ns           15 max_ns=11.2924k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=1.53267k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           0.65 %         13.43 %            15 max_ns=22.54% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=55.32%
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    740115832 ns        20654 ns           15 max_ns=77.3337k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=10.2902k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  746975642 ns        20586 ns           15 max_ns=64.115k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=3.562k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev   14481330 ns         3553 ns           15 max_ns=33.2048k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=12.8243k
+BM_SPSC_SaturatedEndToEndLatency<RB2<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           1.96 %         17.20 %            15 max_ns=42.94% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=124.63%
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      232636823 ns        19409 ns           15 max_ns=25.2502k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/64/iterations:1/repeats:15/real_time_median    226426234 ns        18612 ns           15 max_ns=22.559k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev     16244995 ns         3244 ns           15 max_ns=10.2773k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             6.98 %         16.71 %            15 max_ns=40.70% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    359880282 ns        20385 ns           15 max_ns=31.6615k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  359627148 ns        20496 ns           15 max_ns=34.432k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    3857855 ns         3128 ns           15 max_ns=13.0502k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           1.07 %         15.35 %            15 max_ns=41.22% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    357656843 ns        22669 ns           15 max_ns=38.3107k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.45413k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  357651462 ns        23943 ns           15 max_ns=35.62k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev    2666684 ns         3818 ns           15 max_ns=27.3651k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=306.482
+BM_SPSC_SaturatedEndToEndLatency<RB3<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           0.75 %         16.84 %            15 max_ns=71.43% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=12.49%
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      418163582 ns        21510 ns           15 max_ns=28.9705k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/64/iterations:1/repeats:15/real_time_median    418444183 ns        19523 ns           15 max_ns=28.495k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev      2651271 ns         6153 ns           15 max_ns=15.3158k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             0.63 %         28.60 %            15 max_ns=52.87% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    404751553 ns        19836 ns           15 max_ns=25.9626k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  405313706 ns        19875 ns           15 max_ns=26.121k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    2721569 ns         2966 ns           15 max_ns=10.3397k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           0.67 %         14.95 %            15 max_ns=39.83% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    404708652 ns        20391 ns           15 max_ns=31.3449k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=3.00807k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  403594479 ns        20537 ns           15 max_ns=33.244k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev    3651103 ns         2516 ns           15 max_ns=9.97209k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=1.67066k
+BM_SPSC_SaturatedEndToEndLatency<RB4<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           0.90 %         12.34 %            15 max_ns=31.81% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=55.54%
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      417713512 ns        22526 ns           15 max_ns=23.7464k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/64/iterations:1/repeats:15/real_time_median    418407376 ns        22289 ns           15 max_ns=18.997k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev      3622797 ns         4091 ns           15 max_ns=12.7086k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             0.87 %         18.16 %            15 max_ns=53.52% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    405006192 ns        22475 ns           15 max_ns=36.1735k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  405998785 ns        23010 ns           15 max_ns=35.62k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    2627580 ns         2344 ns           15 max_ns=14.0619k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           0.65 %         10.43 %            15 max_ns=38.87% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    407214195 ns        21791 ns           15 max_ns=63.4815k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.69153k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  406381098 ns        22264 ns           15 max_ns=43.931k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev    5441621 ns         3186 ns           15 max_ns=69.733k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=948.186
+BM_SPSC_SaturatedEndToEndLatency<RB5<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           1.34 %         14.62 %            15 max_ns=109.85% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=35.23%
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      448122854 ns        21017 ns           15 max_ns=27.6249k p50_ns=1.18787k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/64/iterations:1/repeats:15/real_time_median    448149529 ns        20957 ns           15 max_ns=22.559k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev      3342884 ns         2892 ns           15 max_ns=13.9294k p50_ns=0.351866 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             0.75 %         13.76 %            15 max_ns=50.42% p50_ns=0.03% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    428976981 ns        20050 ns           15 max_ns=32.0575k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  426948895 ns        20055 ns           15 max_ns=30.871k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    3667057 ns         3357 ns           15 max_ns=13.6485k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           0.85 %         16.74 %            15 max_ns=42.57% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    428608282 ns        21849 ns           15 max_ns=29.5247k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.45413k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  426931086 ns        21689 ns           15 max_ns=29.683k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev    4360147 ns         3281 ns           15 max_ns=11.3517k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=306.482
+BM_SPSC_SaturatedEndToEndLatency<RB6<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           1.02 %         15.01 %            15 max_ns=38.45% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=12.49%
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/64/iterations:1/repeats:15/real_time_mean      315414913 ns        21205 ns           15 max_ns=28.2581k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/64/iterations:1/repeats:15/real_time_median    317224692 ns        22219 ns           15 max_ns=26.121k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/64/iterations:1/repeats:15/real_time_stddev      6524908 ns         4635 ns           15 max_ns=17.119k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/64/iterations:1/repeats:15/real_time_cv             2.07 %         21.86 %            15 max_ns=60.58% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/1024/iterations:1/repeats:15/real_time_mean    290526965 ns        21597 ns           15 max_ns=33.6406k p50_ns=1.18793k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/1024/iterations:1/repeats:15/real_time_median  291310433 ns        22380 ns           15 max_ns=29.683k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/1024/iterations:1/repeats:15/real_time_stddev    2243084 ns         3086 ns           15 max_ns=18.49k p50_ns=0.258199 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/1024/iterations:1/repeats:15/real_time_cv           0.77 %         14.29 %            15 max_ns=54.96% p50_ns=0.02% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/4096/iterations:1/repeats:15/real_time_mean    289853047 ns        21531 ns           15 max_ns=55.3287k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/4096/iterations:1/repeats:15/real_time_median  291169142 ns        20897 ns           15 max_ns=34.432k p50_ns=1.188k p90_ns=2.375k p95_ns=2.375k p99_ns=2.375k
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/4096/iterations:1/repeats:15/real_time_stddev    2954301 ns         3006 ns           15 max_ns=75.2271k p50_ns=0 p90_ns=0 p95_ns=0 p99_ns=0
+BM_SPSC_SaturatedEndToEndLatency<RB7<TimeItem>>/4096/iterations:1/repeats:15/real_time_cv           1.02 %         13.96 %            15 max_ns=135.96% p50_ns=0.00% p90_ns=0.00% p95_ns=0.00% p99_ns=0.00%
