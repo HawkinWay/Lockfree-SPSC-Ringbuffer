@@ -4,13 +4,13 @@
 #include <thread>
 
 TEST(RingBufferTest, InitialCapacityMatches){
-    shovy::RingBuffer<int> buffer(128);
+    shovy::RingBuffer7<int> buffer(128);
     EXPECT_EQ(buffer.capacity(), 128);
 }
 
 // single thread test
 TEST(RingBufferTest, BasicOperations){
-    shovy::RingBuffer<int> rb(4);
+    shovy::RingBuffer7<int> rb(4);
 
     EXPECT_EQ(rb.capacity(), 4);
     EXPECT_TRUE(rb.empty());
@@ -37,20 +37,20 @@ TEST(RingBufferTest, BasicOperations){
 
 TEST(RingBufferTest, RejectNonPowerOfTwoCapacity){
     EXPECT_THROW(
-	shovy::RingBuffer<int> buffer(100),
+	shovy::RingBuffer7<int> buffer(100),
 	std::invalid_argument
     );
 }
 
 TEST(RingBufferTest, AcceptPowerOfTwoCapacity){
     EXPECT_NO_THROW(
-	shovy::RingBuffer<int> buffer(1024);
+	shovy::RingBuffer7<int> buffer(1024);
     );
 }
 
 TEST(RingBufferTest, MultiThreadDataRaceDemonstration){
     const size_t count = 10'000'000;
-    shovy::RingBuffer<size_t> buffer(1024);
+    shovy::RingBuffer7<size_t> buffer(1024);
 
     std::thread producer([&](){
         for(size_t i = 0; i < count; i++){
@@ -87,7 +87,7 @@ TEST(RingBufferTest, MultiThreadDataRaceDemonstration){
 }
 
 TEST(RingBufferTest, BasicBatchOperations){
-	shovy::RingBuffer<int> buffer(16);
+	shovy::RingBuffer7<int> buffer(16);
 	EXPECT_EQ(buffer.capacity(), 16);
 	EXPECT_TRUE(buffer.empty());
 
@@ -108,7 +108,7 @@ TEST(RingBufferTest, BasicBatchOperations){
 }
 
 TEST(RingBufferTest, BatchWrapAround) {
-    shovy::RingBuffer<int> buffer(16);
+    shovy::RingBuffer7<int> buffer(16);
 
     int dummy[14] = {};
     int out[14] = {};
@@ -128,7 +128,7 @@ TEST(RingBufferTest, BatchWrapAround) {
 
 
 TEST(RingBufferTest, BatchPushPartialWhenFull){
-	shovy::RingBuffer<int> buffer(8);
+	shovy::RingBuffer7<int> buffer(8);
 
 	int input[16] = {};
 
@@ -139,7 +139,7 @@ TEST(RingBufferTest, BatchPushPartialWhenFull){
 }
 
 TEST(RingBufferTest, BatchPopPartialWhenEmpty){
-	shovy::RingBuffer<int> buffer(8);
+	shovy::RingBuffer7<int> buffer(8);
 
 	int input[4] = {1,2,3,4};
 	int output[8] = {};
@@ -151,9 +151,9 @@ TEST(RingBufferTest, BatchPopPartialWhenEmpty){
 }
 
 TEST(RingBufferTest, SupportsTriviallyCopyableTypes){
-	shovy::RingBuffer<int> intBuffer(64);
-	shovy::RingBuffer<float> floatBuffer(64);
-	shovy::RingBuffer<size_t> sizeBuffer(64);
+	shovy::RingBuffer7<int> intBuffer(64);
+	shovy::RingBuffer7<float> floatBuffer(64);
+	shovy::RingBuffer7<size_t> sizeBuffer(64);
 
 	EXPECT_EQ(intBuffer.capacity(), 64);
 	EXPECT_EQ(floatBuffer.capacity(), 64);
@@ -167,7 +167,7 @@ TEST(RingBufferTest, SupportsAudioFrame)
         float right;
     };
 
-    shovy::RingBuffer<AudioFrame> buffer(64);
+    shovy::RingBuffer7<AudioFrame> buffer(64);
 
     EXPECT_EQ(buffer.capacity(), 64);
 
