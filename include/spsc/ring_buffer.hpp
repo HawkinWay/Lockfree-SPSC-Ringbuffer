@@ -5,3 +5,4 @@
 #include "ring_buffer4.hpp"
 #include "ring_buffer5.hpp"
 #include "ring_buffer6.hpp"
+#include "ring_buffer7.hpp"
