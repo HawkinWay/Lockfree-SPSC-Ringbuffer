@@ -27,3 +27,7 @@ To understand the lock-free mechanics and low-level optimizations implemented in
 * [Memory Order](docs/memory_order.md) - discuss how to move away from costly `seq_cst` and leverage `acquire`, `release` semantics to squeeze out maximum hardware performance
 * [Hardware & Cache](docs/hardware_and_cache.md) - explain the `chache line` mechanism and how to make optimizations by using `alignas` to mitigate `false sharing`
 * [Data Copy & Safety](docs/data_copy_and_safety.md) - compile-time assertions(`static_assert`) and how to maximize `contiguous memory throughput` by using `memcpy`
+
+The benchmark report:
+
+* [benchmark_report](docs/benchmark_report_final.md) - a report about 7 different version "lockfree SPSC ringbuffers", this report compares their throughput and latency, and also points out areas for improvement in this benchmark test.
