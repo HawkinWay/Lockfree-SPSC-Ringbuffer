@@ -12,6 +12,20 @@
 #include <type_traits>
 #include <vector>
 
+#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+#include <immintrin.h>
+#endif
+
+static inline void cpuRelax() noexcept {
+#if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
+    _mm_pause();
+#elif defined(__aarch64__) && (defined(__GNUC__) || defined(__clang__))
+    __asm__ __volatile__("yield" ::: "memory");
+#else
+    std::this_thread::yield();
+#endif
+}
+
 struct TimeItem {
     uint64_t sequence;
     int64_t pushTimeNs;
@@ -47,25 +61,25 @@ static void BM_SPSC_Throughput(benchmark::State& state) {
 
         std::thread producer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             for (size_t i = 0; i < total_operations; ++i) {
                 while (!buffer.push(i)) {
-                    std::this_thread::yield();
+                    cpuRelax();
                 }
             }
         });
 
         std::thread consumer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             size_t value = 0;
             for (size_t i = 0; i < total_operations; ++i) {
                 while (!buffer.pop(value)) {
-                    std::this_thread::yield();
+                    cpuRelax();
                 }
                 benchmark::DoNotOptimize(value);
             }
@@ -101,7 +115,7 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
 
         std::thread producer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             size_t produced = 0;
@@ -111,14 +125,14 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
                 if (const size_t pushed = buffer.push_batch(input.data(), request); pushed > 0) {
                     produced += pushed;
                 } else {
-                    std::this_thread::yield();
+                    cpuRelax();
                 }
             }
         });
 
         std::thread consumer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             size_t consumed = 0;
@@ -129,7 +143,7 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
                     consumed += popped;
                     benchmark::DoNotOptimize(output.data());
                 } else {
-                    std::this_thread::yield();
+                    cpuRelax();
                 }
             }
         });
@@ -169,14 +183,12 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
 
         std::thread producer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             for (uint64_t i = 0; i < total_operations; ++i) {
                 TimeItem item{i, 0, (i % sample_stride == 0)};
 
-                // Refresh the timestamp before each push attempt so time
-                // spent waiting for a free slot is not attributed to this item.
                 while (true) {
                     if (item.sampled) {
                         item.pushTimeNs = nowNs();
@@ -185,20 +197,21 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
                     if (buffer.push(item)) {
                         break;
                     }
-                    std::this_thread::yield();
+
+                    cpuRelax();
                 }
             }
         });
 
         std::thread consumer([&]() {
             while (!start.load(std::memory_order_acquire)) {
-                std::this_thread::yield();
+                cpuRelax();
             }
 
             for (uint64_t i = 0; i < total_operations; ++i) {
                 TimeItem item{};
                 while (!buffer.pop(item)) {
-                    std::this_thread::yield();
+                    cpuRelax();
                 }
 
                 if (item.sampled) {
@@ -234,10 +247,8 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
     state.counters["p99_ns"] = static_cast<double>(p99);
     state.counters["max_ns"] = static_cast<double>(max_latency);
 
-    state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(total_operations) * 2);
 }
 
-// Template aliases keep registration readable and avoid long concrete types.
 template <typename T> using RB1 = shovy::RingBuffer1<T>;
 template <typename T> using RB2 = shovy::RingBuffer2<T>;
 template <typename T> using RB3 = shovy::RingBuffer3<T>;
@@ -249,23 +260,21 @@ template <typename T> using RB7 = shovy::RingBuffer7<T>;
 #define REGISTER_CAPACITY_BENCHMARK(BenchmarkFn, QueueType) \
     BENCHMARK_TEMPLATE(BenchmarkFn, QueueType)                    \
         ->Arg(64)->Arg(1024)->Arg(4096)                            \
-        ->UseRealTime()->Repetitions(15)->ReportAggregatesOnly(true)
+        ->UseRealTime()->Repetitions(15)->DisplayAggregatesOnly(true)
 
 #define REGISTER_BATCH_BENCHMARK(QueueType)                       \
     BENCHMARK_TEMPLATE(BM_SPSC_BatchThroughput, QueueType)        \
         ->Args({4096, 8})->Args({4096, 32})                        \
         ->Args({4096, 64})->Args({4096, 256})                     \
-        ->UseRealTime()->Repetitions(15)->ReportAggregatesOnly(true)
+        ->UseRealTime()->Repetitions(15)->DisplayAggregatesOnly(true)
 
 #define REGISTER_LATENCY_BENCHMARK(QueueType)                     \
     BENCHMARK_TEMPLATE(BM_SPSC_SaturatedEndToEndLatency, QueueType) \
         ->Arg(64)->Arg(1024)->Arg(4096)                            \
         ->UseRealTime()->Iterations(1)->Repetitions(15)            \
-        ->ReportAggregatesOnly(true)
+        ->DisplayAggregatesOnly(true)
 
-// Throughput: RB1 is retained as an unsafe reference only; its data races
-// make it unsuitable for correctness-preserving performance conclusions.
-REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB1<size_t>);
+
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB2<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB3<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB4<size_t>);
@@ -273,11 +282,10 @@ REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB5<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB6<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB7<size_t>);
 
-// Batch API exists in RB6 and RB7.
 REGISTER_BATCH_BENCHMARK(RB6<size_t>);
 REGISTER_BATCH_BENCHMARK(RB7<size_t>);
 
-// Latency: exclude RB1 because it has data races / undefined behavior.
+
 REGISTER_LATENCY_BENCHMARK(RB2<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB3<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB4<TimeItem>);
