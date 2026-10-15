@@ -5,7 +5,7 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/heads/main.zip
 )
 
-set(gtest_force_shared_ctr ON CACHE BOOL "" FORCE)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 if(BUILD_COMPILE_FAIL_TESTS)
