@@ -8,12 +8,19 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <thread>
 #include <type_traits>
 #include <vector>
 
 #if defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_X64)
 #include <immintrin.h>
+#endif
+
+#if defined(__linux__)
+#include <pthread.h>
+#include <sched.h>
 #endif
 
 static inline void cpuRelax() noexcept {
@@ -26,6 +33,50 @@ static inline void cpuRelax() noexcept {
 #endif
 }
 
+// ---- CPU pinning ----------------------------------------------------------
+//
+// A queue microbenchmark is only reproducible if the two threads stay on two
+// known physical cores. Without pinning the scheduler may co-locate producer
+// and consumer on one core (turning the measurement into single-core
+// round-robin) or migrate them mid-run.
+//
+// Defaults: producer/main -> CPU 0, consumer -> CPU 2. These two are on
+// different physical cores under both common SMT enumerations -- (0,8)
+// siblings on AMD Zen, (0,1) siblings on some Intel parts. Verify on the
+// target box with:
+//     cat /sys/devices/system/cpu/cpu0/topology/thread_siblings_list
+// and override without recompiling:
+//     SPSC_PRODUCER_CPU=4 SPSC_CONSUMER_CPU=6 ./ring_buffer_bench ...
+static void pinCurrentThread(int cpu) {
+#if defined(__linux__)
+    if (cpu < 0) return;
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    CPU_SET(cpu, &set);
+    if (pthread_setaffinity_np(pthread_self(), sizeof(set), &set) != 0) {
+        static std::atomic<bool> warned{false};
+        if (!warned.exchange(true, std::memory_order_relaxed)) {
+            std::fprintf(stderr, "[bench] warning: could not pin thread to CPU %d "
+                                 "(cgroup/cpuset restriction?)\n", cpu);
+        }
+    }
+#else
+    (void)cpu;   // pinning is only implemented on Linux
+#endif
+}
+
+static int cpuFromEnv(const char* name, int fallback) {
+#if defined(__linux__)
+    if (const char* s = std::getenv(name)) {
+        const int v = std::atoi(s);
+        if (v >= 0) return v;
+    }
+#else
+    (void)name;
+#endif
+    return fallback;
+}
+
 struct TimeItem {
     uint64_t sequence;
     int64_t pushTimeNs;
@@ -36,9 +87,61 @@ static_assert(std::is_trivially_copyable_v<TimeItem>, "TimeItem must be triviall
 
 using Clock = std::chrono::steady_clock;
 
-static int64_t nowNs() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(Clock::now().time_since_epoch()).count();
-}
+// Timestamping for sub-microsecond latency measurement.
+//
+// std::chrono::steady_clock can be HPET-backed (e.g. when the kernel drops
+// the TSC clocksource, as on this machine: /sys/.../current_clocksource =
+// hpet). Each read then costs ~1.2 us and the value only advances in ~1.2 us
+// ticks, which quantizes every measured interval into multiples of the tick:
+// a real 300 ns handoff gets reported as 0, 1187, or 2375 ns.
+//
+// On x86 the invariant TSC (constant_tsc + nonstop_tsc) reads in ~20 ns with
+// sub-nanosecond granularity, so it is used instead and calibrated once
+// against steady_clock over a 200 ms busy wait.
+struct LatencyClock {
+    // Serializing fences bracket the read, and the "memory" clobber pins the
+    // whole sequence in place: without it the compiler is free to sink the
+    // t0 read below the measured queue operations (intrinsics like
+    // __rdtscp/_mm_lfence are not compiler barriers in GCC), which collapses
+    // the measured interval to the cost of two back-to-back reads.
+    static uint64_t cyclesNow() noexcept {
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+        uint32_t lo, hi, aux;
+        __asm__ __volatile__(
+            "lfence\n\t"
+            "rdtscp\n\t"    // cpuid + rdtsc
+            "lfence"
+            : "=a"(lo), "=d"(hi), "=c"(aux)
+            :
+            : "memory");
+        return (static_cast<uint64_t>(hi) << 32) | lo;
+#else
+        return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+            Clock::now().time_since_epoch()).count());
+#endif
+    }
+
+    static double nsPerCycle() {
+        static const double factor = [] {
+            const auto t0 = Clock::now();
+            const uint64_t c0 = cyclesNow();
+            while (std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count() < 200) {
+                cpuRelax();
+            }
+            const uint64_t c1 = cyclesNow();
+            const auto t1 = Clock::now();
+            const auto wall_ns = static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count());
+            const auto cycles = static_cast<double>(c1 - c0);
+            return cycles > 0.0 ? wall_ns / cycles : 1.0;
+        }();
+        return factor;
+    }
+
+    static int64_t cyclesToNs(uint64_t cycles) {
+        return static_cast<int64_t>(static_cast<double>(cycles) * nsPerCycle());
+    }
+};
 
 static int64_t percentileSorted(const std::vector<int64_t>& sorted, double p) {
     assert(!sorted.empty());
@@ -52,6 +155,8 @@ template <typename Queue>
 static void BM_SPSC_Throughput(benchmark::State& state) {
     const auto capacity = static_cast<size_t>(state.range(0));
     constexpr size_t total_operations = 10'000'000;
+    const int producer_cpu = cpuFromEnv("SPSC_PRODUCER_CPU", 0);
+    const int consumer_cpu = cpuFromEnv("SPSC_CONSUMER_CPU", 2);
 
     Queue buffer{capacity};
 
@@ -60,6 +165,7 @@ static void BM_SPSC_Throughput(benchmark::State& state) {
         std::atomic<bool> start{false};
 
         std::thread producer([&]() {
+            pinCurrentThread(producer_cpu);
             while (!start.load(std::memory_order_acquire)) {
                 cpuRelax();
             }
@@ -72,6 +178,7 @@ static void BM_SPSC_Throughput(benchmark::State& state) {
         });
 
         std::thread consumer([&]() {
+            pinCurrentThread(consumer_cpu);
             while (!start.load(std::memory_order_acquire)) {
                 cpuRelax();
             }
@@ -92,7 +199,7 @@ static void BM_SPSC_Throughput(benchmark::State& state) {
         consumer.join();
     }
 
-    state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(total_operations) * 2);
+    state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(total_operations));
 }
 
 template <typename Queue>
@@ -100,6 +207,8 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
     const auto capacity = static_cast<size_t>(state.range(0));
     const auto batch_size = static_cast<size_t>(state.range(1));
     constexpr size_t total_operations = 10'000'000;
+    const int producer_cpu = cpuFromEnv("SPSC_PRODUCER_CPU", 0);
+    const int consumer_cpu = cpuFromEnv("SPSC_CONSUMER_CPU", 2);
 
     Queue buffer{capacity};
     std::vector<size_t> input(batch_size);
@@ -114,6 +223,7 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
         std::atomic<bool> start{false};
 
         std::thread producer([&]() {
+            pinCurrentThread(producer_cpu);
             while (!start.load(std::memory_order_acquire)) {
                 cpuRelax();
             }
@@ -131,6 +241,7 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
         });
 
         std::thread consumer([&]() {
+            pinCurrentThread(consumer_cpu);
             while (!start.load(std::memory_order_acquire)) {
                 cpuRelax();
             }
@@ -141,7 +252,7 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
 
                 if (const size_t popped = buffer.pop_batch(output.data(), request); popped > 0) {
                     consumed += popped;
-                    benchmark::DoNotOptimize(output.data());
+                    benchmark::DoNotOptimize(output[0]);
                 } else {
                     cpuRelax();
                 }
@@ -155,19 +266,40 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
         consumer.join();
     }
 
-    state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) *
-                            static_cast<int64_t>(total_operations) * 2);
+    state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) * static_cast<int64_t>(total_operations));
 }
 
+// Round-trip (ping-pong) latency at zero backlog.
+//
+// The producer sends one token and waits until the consumer echoes it back:
+//
+//   producer                            consumer
+//   --------                            --------
+//   t0 = timestamp
+//   push(token)  ->  to_consumer  ->   pop(token)
+//                                       push(token)  ->  to_producer
+//   pop(echo)    <-  to_producer  <-    (repeat)
+//   t1 = timestamp
+//
+// Both queues hold at most one item, so the token never waits behind a
+// backlog and no retry loop sits on the measured path: each round trip is
+// two pure push->pop handoffs of an empty queue.  The reported percentiles
+// are RTT / 2, i.e. the estimated one-way push->pop latency.
 template <typename Queue>
-static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
+static void BM_SPSC_RoundTripLatency(benchmark::State& state) {
     const auto capacity = static_cast<size_t>(state.range(0));
-    constexpr uint64_t total_operations = 10'000'000;
-    constexpr uint64_t sample_stride = 1000;
-    constexpr auto sample_count = static_cast<size_t>((total_operations + sample_stride - 1) / sample_stride);
+    constexpr uint64_t round_trips = 100'000;
+    constexpr uint64_t warmup_round_trips = 1'000;  // skip cold-start outliers
+    constexpr uint64_t sample_stride = 10;          // -> 9,900 samples per run
 
-    Queue buffer{capacity};
-    std::vector<int64_t> samples(sample_count);
+    const int main_cpu = cpuFromEnv("SPSC_MAIN_CPU", 0);
+    const int consumer_cpu = cpuFromEnv("SPSC_CONSUMER_CPU", 2);
+    pinCurrentThread(main_cpu);
+
+    Queue to_consumer{capacity};
+    Queue to_producer{capacity};
+    std::vector<int64_t> samples;
+    samples.reserve((round_trips - warmup_round_trips) / sample_stride);
 
     int64_t p50{0};
     int64_t p90{0};
@@ -177,47 +309,22 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
 
     for (auto _ : state) {
         state.PauseTiming();
-        std::ranges::fill(samples, 0);
-        size_t sample_idx{0};
+        samples.clear();
         std::atomic<bool> start{false};
 
-        std::thread producer([&]() {
-            while (!start.load(std::memory_order_acquire)) {
-                cpuRelax();
-            }
-
-            for (uint64_t i = 0; i < total_operations; ++i) {
-                TimeItem item{i, 0, (i % sample_stride == 0)};
-
-                while (true) {
-                    if (item.sampled) {
-                        item.pushTimeNs = nowNs();
-                    }
-
-                    if (buffer.push(item)) {
-                        break;
-                    }
-
-                    cpuRelax();
-                }
-            }
-        });
-
         std::thread consumer([&]() {
+            pinCurrentThread(consumer_cpu);
             while (!start.load(std::memory_order_acquire)) {
                 cpuRelax();
             }
 
-            for (uint64_t i = 0; i < total_operations; ++i) {
-                TimeItem item{};
-                while (!buffer.pop(item)) {
+            TimeItem item{};
+            for (uint64_t i = 0; i < round_trips; ++i) {
+                while (!to_consumer.pop(item)) {
                     cpuRelax();
                 }
-
-                if (item.sampled) {
-                    const int64_t latency_ns = nowNs() - item.pushTimeNs;
-                    assert(sample_idx < samples.size());
-                    samples[sample_idx++] = latency_ns;
+                while (!to_producer.push(item)) {
+                    cpuRelax();
                 }
             }
         });
@@ -225,11 +332,31 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
         state.ResumeTiming();
         start.store(true, std::memory_order_release);
 
-        producer.join();
+        TimeItem item{};
+        for (uint64_t i = 0; i < round_trips; ++i) {
+            item.sequence = i;
+            item.sampled = (i >= warmup_round_trips) && (i % sample_stride == 0);
+
+            const uint64_t t0 = LatencyClock::cyclesNow();
+            while (!to_consumer.push(item)) {
+                cpuRelax();
+            }
+
+            TimeItem echo{};
+            while (!to_producer.pop(echo)) {
+                cpuRelax();
+            }
+            const uint64_t t1 = LatencyClock::cyclesNow();
+
+            if (echo.sampled) {
+                samples.push_back(LatencyClock::cyclesToNs(t1 - t0) / 2);
+            }
+        }
+
         consumer.join();
 
         state.PauseTiming();
-        assert(sample_idx == sample_count);
+        assert(!samples.empty());
 
         std::ranges::sort(samples);
         p50 = percentileSorted(samples, 0.50);
@@ -246,7 +373,8 @@ static void BM_SPSC_SaturatedEndToEndLatency(benchmark::State& state) {
     state.counters["p95_ns"] = static_cast<double>(p95);
     state.counters["p99_ns"] = static_cast<double>(p99);
     state.counters["max_ns"] = static_cast<double>(max_latency);
-
+    // Clock calibration factor, so a report shows which timer was actually used.
+    state.counters["tsc_ns_per_cycle"] = LatencyClock::nsPerCycle();
 }
 
 template <typename T> using RB1 = shovy::RingBuffer1<T>;
@@ -269,7 +397,7 @@ template <typename T> using RB7 = shovy::RingBuffer7<T>;
         ->UseRealTime()->Repetitions(15)->DisplayAggregatesOnly(true)
 
 #define REGISTER_LATENCY_BENCHMARK(QueueType)                     \
-    BENCHMARK_TEMPLATE(BM_SPSC_SaturatedEndToEndLatency, QueueType) \
+    BENCHMARK_TEMPLATE(BM_SPSC_RoundTripLatency, QueueType)         \
         ->Arg(64)->Arg(1024)->Arg(4096)                            \
         ->UseRealTime()->Iterations(1)->Repetitions(15)            \
         ->DisplayAggregatesOnly(true)
@@ -294,4 +422,5 @@ REGISTER_LATENCY_BENCHMARK(RB6<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB7<TimeItem>);
 
 BENCHMARK_MAIN();
+
 
