@@ -10,7 +10,7 @@ namespace shovy{
     class RingBuffer5{
     public:
         explicit RingBuffer5(size_t capacity) : capacity_(capacity) {
-            if (capacity_ == 0) {
+            if (capacity_ == 0 || (capacity_ & (capacity_ - 1)) != 0) {
                 throw std::invalid_argument("RingBuffer capacity must be > 0");
             }
             buffer_ = new T[capacity_];

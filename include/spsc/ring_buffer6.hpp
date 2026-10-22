@@ -5,11 +5,13 @@
 #include <new>
 #include <cstring>
 #include <algorithm>
+#include <type_traits>
 
 namespace shovy{
 
 template<typename T>
 class RingBuffer6{
+    static_assert(std::is_trivially_copyable_v<T>, "RingBuffer only supports trivially copyable types");
 public:
     explicit RingBuffer6(size_t capacity) : capacity_(capacity) {
         if (capacity_ == 0 || (capacity_ & (capacity_ - 1)) != 0) {

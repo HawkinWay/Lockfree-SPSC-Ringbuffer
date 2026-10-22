@@ -42,8 +42,10 @@ public:
     // producer
     bool push(const T& item) {
         const size_t current_w = write_idx.load(std::memory_order_relaxed);
-        const size_t current_r = read_idx.load(std::memory_order_acquire);
-        if (current_w - current_r == capacity_)  return false;
+        if (current_w - cached_read == capacity_) {
+            cached_read = read_idx.load(std::memory_order_acquire);
+            if (current_w - cached_read == capacity_)  return false;
+        }
         // buffer_[current_w & (capacity_ - 1)] = item;
         std::memcpy(&buffer_[current_w & (capacity_ - 1)], &item, sizeof(T));
         write_idx.store(current_w + 1, std::memory_order_release);
@@ -53,8 +55,10 @@ public:
     // consumer
     bool pop(T& item) {
         const size_t current_r = read_idx.load(std::memory_order_relaxed);
-        const size_t current_w = write_idx.load(std::memory_order_acquire);
-        if (current_w == current_r) return false;
+        if (cached_write == current_r) {
+            cached_write = write_idx.load(std::memory_order_acquire);
+            if (cached_write == current_r) return false;
+        }
         // item = buffer_[current_r & (capacity_ - 1)];
         std::memcpy(&item, &buffer_[current_r & (capacity_ - 1)], sizeof(T));
         read_idx.store(current_r + 1, std::memory_order_release);
@@ -119,7 +123,9 @@ private:
     T* buffer_{nullptr};
     const size_t capacity_;
     alignas(CacheLineSize) std::atomic<size_t> write_idx{0};
+    size_t cached_read{0};
     alignas(CacheLineSize) std::atomic<size_t> read_idx{0};
+    size_t cached_write{0};
 };
 
 }   // namespace shovy
