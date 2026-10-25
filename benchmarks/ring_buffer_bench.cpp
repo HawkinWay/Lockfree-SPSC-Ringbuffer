@@ -384,6 +384,7 @@ template <typename T> using RB4 = shovy::RingBuffer4<T>;
 template <typename T> using RB5 = shovy::RingBuffer5<T>;
 template <typename T> using RB6 = shovy::RingBuffer6<T>;
 template <typename T> using RB7 = shovy::RingBuffer7<T>;
+template <typename T> using RB7_2 = shovy::RingBuffer7_2<T>;
 
 #define REGISTER_CAPACITY_BENCHMARK(BenchmarkFn, QueueType) \
     BENCHMARK_TEMPLATE(BenchmarkFn, QueueType)                    \
@@ -409,6 +410,7 @@ REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB4<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB5<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB6<size_t>);
 REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB7<size_t>);
+REGISTER_CAPACITY_BENCHMARK(BM_SPSC_Throughput, RB7_2<size_t>);
 
 REGISTER_BATCH_BENCHMARK(RB6<size_t>);
 REGISTER_BATCH_BENCHMARK(RB7<size_t>);
