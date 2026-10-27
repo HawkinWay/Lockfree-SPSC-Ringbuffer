@@ -4,9 +4,9 @@
 #include <atomic>
 
 namespace shovy{
-
+    
 template<typename T>
-class RingBuffer3{
+class alignas(64) RingBuffer3{
 public:
     explicit RingBuffer3(size_t capacity) : capacity_(capacity) {
         if (capacity_ == 0) {

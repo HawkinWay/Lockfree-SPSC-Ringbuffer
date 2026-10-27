@@ -6,7 +6,7 @@
 namespace shovy{
 
 template<typename T>
-class RingBuffer2{
+class alignas(64) RingBuffer2{
 public:
     explicit RingBuffer2(size_t capacity) : capacity_(capacity) {
         if (capacity_ == 0) {

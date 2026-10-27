@@ -10,7 +10,7 @@
 namespace shovy{
 
 template<typename T>
-class RingBuffer7_2{
+class alignas(64) RingBuffer7_2{
     static_assert(std::is_trivially_copyable_v<T>, "RingBuffer only supports trivially copyable types");
     
     static_assert(std::atomic<size_t>::is_always_lock_free, "RingBuffer requires lock-free atomic operations");
