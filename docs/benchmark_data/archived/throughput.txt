@@ -1,0 +1,128 @@
+2026-10-26T20:35:20+08:00
+Running /home/shovy/Documents/Lockfree-SPSC-Ringbuffer/build-release/benchmarks/ring_buffer_bench
+Run on (16 X 3204.66 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x8)
+  L1 Instruction 32 KiB (x8)
+  L2 Unified 1024 KiB (x8)
+  L3 Unified 16384 KiB (x1)
+Load Average: 0.02, 0.26, 0.71
+------------------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                          Time             CPU   Iterations UserCounters...
+------------------------------------------------------------------------------------------------------------------------------------
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_mean               632415803 ns        23392 ns           15 items_per_second=15.8125M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_median             632363008 ns        23566 ns           15 items_per_second=15.8137M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_stddev               1468201 ns         2744 ns           15 items_per_second=36.706k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB2<size_t>>/64/repeats:15/real_time_cv                      0.23 %         11.73 %            15 items_per_second=0.23% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_mean             619747346 ns        22901 ns           15 items_per_second=16.1399M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_median           614357538 ns        23465 ns           15 items_per_second=16.2772M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_stddev            10437613 ns         2955 ns           15 items_per_second=270.221k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB2<size_t>>/1024/repeats:15/real_time_cv                    1.68 %         12.90 %            15 items_per_second=1.67% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_mean             631746876 ns        24261 ns           15 items_per_second=15.8292M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_median           631123462 ns        23755 ns           15 items_per_second=15.8448M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_stddev             1738803 ns         3343 ns           15 items_per_second=43.528k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB2<size_t>>/4096/repeats:15/real_time_cv                    0.28 %         13.78 %            15 items_per_second=0.27% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_mean                68312161 ns        17207 ns           15 items_per_second=146.387M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_median              68315114 ns        17139 ns           15 items_per_second=146.38M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_stddev                 83060 ns          778 ns           15 items_per_second=178.005k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB3<size_t>>/64/repeats:15/real_time_cv                      0.12 %          4.52 %            15 items_per_second=0.12% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_mean              70225589 ns        17574 ns           15 items_per_second=142.427M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_median            70357633 ns        17507 ns           15 items_per_second=142.131M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_stddev             1041768 ns          813 ns           15 items_per_second=2.10101M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB3<size_t>>/1024/repeats:15/real_time_cv                    1.48 %          4.63 %            15 items_per_second=1.48% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_mean              69048749 ns        17038 ns           15 items_per_second=144.826M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_median            68988553 ns        16948 ns           15 items_per_second=144.952M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_stddev              163452 ns         1021 ns           15 items_per_second=341.53k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB3<size_t>>/4096/repeats:15/real_time_cv                    0.24 %          5.99 %            15 items_per_second=0.24% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_mean                67277971 ns        16673 ns           15 items_per_second=148.638M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_median              67260787 ns        16627 ns           15 items_per_second=148.675M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_stddev                167691 ns         1043 ns           15 items_per_second=370.667k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB4<size_t>>/64/repeats:15/real_time_cv                      0.25 %          6.26 %            15 items_per_second=0.25% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_mean              66723140 ns        17067 ns           15 items_per_second=149.878M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_median            66592011 ns        16888 ns           15 items_per_second=150.168M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_stddev              382292 ns          957 ns           15 items_per_second=856.82k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB4<size_t>>/1024/repeats:15/real_time_cv                    0.57 %          5.61 %            15 items_per_second=0.57% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_mean              68964316 ns        16432 ns           15 items_per_second=145.006M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_median            69012061 ns        16532 ns           15 items_per_second=144.902M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_stddev              342912 ns         1282 ns           15 items_per_second=722.255k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB4<size_t>>/4096/repeats:15/real_time_cv                    0.50 %          7.80 %            15 items_per_second=0.50% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_mean                58121948 ns        16120 ns           15 items_per_second=172.053M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_median              58107958 ns        16068 ns           15 items_per_second=172.093M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_stddev                157042 ns          986 ns           15 items_per_second=464.496k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB5<size_t>>/64/repeats:15/real_time_cv                      0.27 %          6.12 %            15 items_per_second=0.27% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_mean              64204889 ns        17049 ns           15 items_per_second=155.754M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_median            64162139 ns        16624 ns           15 items_per_second=155.855M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_stddev              291200 ns         1677 ns           15 items_per_second=706.671k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB5<size_t>>/1024/repeats:15/real_time_cv                    0.45 %          9.84 %            15 items_per_second=0.45% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_mean              70789479 ns        15989 ns           15 items_per_second=141.267M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_median            70850602 ns        15946 ns           15 items_per_second=141.142M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_stddev              334056 ns          914 ns           15 items_per_second=665.288k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB5<size_t>>/4096/repeats:15/real_time_cv                    0.47 %          5.72 %            15 items_per_second=0.47% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_mean                57944604 ns        16258 ns           15 items_per_second=172.579M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_median              57935799 ns        16657 ns           15 items_per_second=172.605M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_stddev                121846 ns         1009 ns           15 items_per_second=362.65k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB6<size_t>>/64/repeats:15/real_time_cv                      0.21 %          6.20 %            15 items_per_second=0.21% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_mean              64555475 ns        16435 ns           15 items_per_second=154.912M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_median            64463606 ns        16566 ns           15 items_per_second=155.126M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_stddev              430793 ns          993 ns           15 items_per_second=1.03106M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB6<size_t>>/1024/repeats:15/real_time_cv                    0.67 %          6.04 %            15 items_per_second=0.67% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_mean              71001215 ns        16097 ns           15 items_per_second=140.844M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_median            70997709 ns        16263 ns           15 items_per_second=140.85M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_stddev              222882 ns          850 ns           15 items_per_second=442.114k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB6<size_t>>/4096/repeats:15/real_time_cv                    0.31 %          5.28 %            15 items_per_second=0.31% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_mean                30901480 ns        15881 ns           15 items_per_second=323.61M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_median              30889424 ns        16090 ns           15 items_per_second=323.735M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_stddev                 60021 ns          782 ns           15 items_per_second=627.34k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7<size_t>>/64/repeats:15/real_time_cv                      0.19 %          4.92 %            15 items_per_second=0.19% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_mean              57859144 ns        16740 ns           15 items_per_second=172.964M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_median            58137433 ns        16681 ns           15 items_per_second=172.006M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_stddev             1591456 ns         1165 ns           15 items_per_second=5.09542M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7<size_t>>/1024/repeats:15/real_time_cv                    2.75 %          6.96 %            15 items_per_second=2.95% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_mean              64961296 ns        16928 ns           15 items_per_second=153.939M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_median            64901398 ns        16849 ns           15 items_per_second=154.08M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_stddev              184266 ns          955 ns           15 items_per_second=436.281k/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7<size_t>>/4096/repeats:15/real_time_cv                    0.28 %          5.64 %            15 items_per_second=0.28% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7_2<size_t>>/64/repeats:15/real_time_mean              45821312 ns        16736 ns           15 items_per_second=218.245M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/64/repeats:15/real_time_median            45734452 ns        16655 ns           15 items_per_second=218.654M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/64/repeats:15/real_time_stddev              253810 ns         1392 ns           15 items_per_second=1.19607M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7_2<size_t>>/64/repeats:15/real_time_cv                    0.55 %          8.32 %            15 items_per_second=0.55% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7_2<size_t>>/1024/repeats:15/real_time_mean            39960723 ns        16191 ns           15 items_per_second=250.387M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/1024/repeats:15/real_time_median          40110561 ns        16209 ns           15 items_per_second=249.311M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/1024/repeats:15/real_time_stddev            982287 ns          888 ns           15 items_per_second=6.17189M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7_2<size_t>>/1024/repeats:15/real_time_cv                  2.46 %          5.48 %            15 items_per_second=2.46% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_Throughput<RB7_2<size_t>>/4096/repeats:15/real_time_mean            41977995 ns        15895 ns           15 items_per_second=238.224M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/4096/repeats:15/real_time_median          41953257 ns        15812 ns           15 items_per_second=238.361M/s obj_mod64=0 sizeof_queue=64
+BM_SPSC_Throughput<RB7_2<size_t>>/4096/repeats:15/real_time_stddev            178991 ns          942 ns           15 items_per_second=1.01077M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_Throughput<RB7_2<size_t>>/4096/repeats:15/real_time_cv                  0.43 %          5.93 %            15 items_per_second=0.42% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_mean       29268918 ns        16301 ns           15 items_per_second=347.007M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_median     32019977 ns        16247 ns           15 items_per_second=312.305M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_stddev      3667268 ns          681 ns           15 items_per_second=45.7292M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/8/repeats:15/real_time_cv            12.53 %          4.18 %            15 items_per_second=13.18% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_mean      10726399 ns        16133 ns           15 items_per_second=938.521M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_median    11434090 ns        16164 ns           15 items_per_second=874.578M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_stddev      892034 ns          648 ns           15 items_per_second=80.4262M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/32/repeats:15/real_time_cv            8.32 %          4.02 %            15 items_per_second=8.57% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_mean       9891794 ns        15402 ns           15 items_per_second=1.03G/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_median    10937057 ns        15180 ns           15 items_per_second=914.323M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_stddev     1354810 ns          955 ns           15 items_per_second=149.118M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/64/repeats:15/real_time_cv           13.70 %          6.20 %            15 items_per_second=14.48% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_mean      7594551 ns        14819 ns           15 items_per_second=1.32795G/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_median    7929250 ns        14479 ns           15 items_per_second=1.26115G/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_stddev     691476 ns          891 ns           15 items_per_second=132.097M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB6<size_t>>/4096/256/repeats:15/real_time_cv           9.10 %          6.01 %            15 items_per_second=9.95% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_mean       28567696 ns        15989 ns           15 items_per_second=354.796M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_median     31047845 ns        15974 ns           15 items_per_second=322.084M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_stddev      3342615 ns          892 ns           15 items_per_second=43.5001M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/8/repeats:15/real_time_cv            11.70 %          5.58 %            15 items_per_second=12.26% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_mean      11791354 ns        15168 ns           15 items_per_second=863.595M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_median    11422529 ns        15079 ns           15 items_per_second=875.463M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_stddev     1612884 ns          761 ns           15 items_per_second=122.108M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/32/repeats:15/real_time_cv           13.68 %          5.02 %            15 items_per_second=14.14% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_mean      10672169 ns        14632 ns           15 items_per_second=957.945M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_median    10946667 ns        14532 ns           15 items_per_second=913.52M/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_stddev     1542440 ns          669 ns           15 items_per_second=155.683M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/64/repeats:15/real_time_cv           14.45 %          4.57 %            15 items_per_second=16.25% obj_mod64=-nan% sizeof_queue=0.00%
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_mean      7254364 ns        14278 ns           15 items_per_second=1.37979G/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_median    7276217 ns        14340 ns           15 items_per_second=1.37434G/s obj_mod64=0 sizeof_queue=192
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_stddev     226508 ns          326 ns           15 items_per_second=45.0474M/s obj_mod64=0 sizeof_queue=0
+BM_SPSC_BatchThroughput<RB7<size_t>>/4096/256/repeats:15/real_time_cv           3.12 %          2.28 %            15 items_per_second=3.26% obj_mod64=-nan% sizeof_queue=0.00%

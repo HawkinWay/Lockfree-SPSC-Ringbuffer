@@ -1,0 +1,23 @@
+date: 2026-10-26T20:35:17+0800
+commit: a2ec19d-dirty
+kernel: 7.0.0-38-generic
+clocksource: hpet
+available: hpet acpi_pm 
+tsc flags:
+constant_tsc
+nonstop_tsc
+cpu:
+CPU(s):                                  16
+Model name:                              AMD Ryzen 7 7840H with Radeon 780M Graphics
+Core(s) per socket:                      8
+Socket(s):                               1
+CPU(s) scaling MHz:                      70%
+CPU max MHz:                             5137.9038
+CPU min MHz:                             419.4210
+siblings0: 0-1
+governor: performance
+boost: 1
+producer_cpu: 0
+consumer_cpu: 2
+nproc: 16
+ 20:35:17 up  6:58,  5 users,  load average: 0.02, 0.26, 0.71
