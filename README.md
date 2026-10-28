@@ -30,4 +30,4 @@ To understand the lock-free mechanics and low-level optimizations implemented in
 
 The benchmark report:
 
-* [benchmark_report](docs/benchmark_report_final.md) - a report about 7 different version "lockfree SPSC ringbuffers", this report compares their throughput and latency, and also points out areas for improvement in this benchmark test.
+* [benchmark_report](docs/benchmark_report_final.md) - throughput, batch throughput and zero-backlog ping-pong latency for seven versions, including a padding × caching ablation and two measurement pitfalls that had to be fixed first. Raw data: [docs/benchmark_data/archived](docs/benchmark_data/archived).

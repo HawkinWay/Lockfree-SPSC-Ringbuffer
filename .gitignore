@@ -12,6 +12,9 @@ build/
 bin/
 out/
 
+# local benchmark runs
+results/
+
 #IDEs and editors
 .vs/
 .vscode/

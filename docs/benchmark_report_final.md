@@ -1,131 +1,130 @@
-# SPSC Ring Buffer Benchmark Report
+# SPSC Ring Buffer Benchmark Results
 
-> Data is based on [`benchmark_data/benchmark_final.txt`](benchmark_data/benchmark_final.txt). This report summarizes the currently archived results and does not represent universal performance across all CPUs, compilers, or runtime environments.
+> Archived data: October 26, 2026. This document lists implementation differences, measurement data, and numerical observations.
+>
+> Raw data: [throughput.json](benchmark_data/archived/throughput.json), [latency.json](benchmark_data/archived/latency.json), [environment snapshot](benchmark_data/archived/env_snapshot.txt), [CTest log](benchmark_data/archived/ctest.log).
 
-## Summary
+## 1. Implementations
 
-Six implementations were compared using Google Benchmark. Each configuration was repeated 15 times, and the tables report medians. All variants were run in the same benchmark binary and test environment.
+| Variant | Implementation recorded in source |
+|---|---|
+| RB2 | Atomic indices use default sequentially consistent ordering. Single-element push/pop use `fetch_add`; availability checks call `full()`/`empty()`. |
+| RB3 | Uses explicit relaxed/acquire/release loads and stores for the indices. Index updates use calculated next values and `store` instead of `fetch_add`. |
+| RB4 | Separately aligns the read and write atomic indices using `std::hardware_destructive_interference_size`. |
+| RB5 | Requires power-of-two capacity and uses bitwise masking for index wraparound instead of modulo. |
+| RB6 | Adds a trivially-copyable type constraint and batch `push_batch`/`pop_batch` operations implemented with `memcpy`. |
+| RB7 | Adds cached remote-index values for single-element `push`/`pop`, uses `memcpy` for single-element copies, allocates raw storage with `::operator new`, and adds compile-time constraints. |
+| RB7_2 | Uses cached remote-index values and the `memcpy` single-element path. The queue type is aligned with `alignas(64)`, while the read and write indices do not each have separate alignment declarations. |
 
-- **RB2**: `seq_cst` atomic operations.
-- **RB3**: `acquire`/`release` atomic operations.
-- **RB4**: Cache-line alignment added to RB3.
-- **RB5**: Bitwise index wrapping for power-of-two capacities added to RB4.
-- **RB6**: A `memcpy` fast path for trivially copyable types added to RB5.
-- **RB7**: Compile-time constraints added to RB6, including lock-free/trivially-copyable checks and allocator/`operator new` constraints.
+## 2. Test Environment and Method
 
-*RB1 is the version with ordinary non-atomic indices.*
+| Property | Archived record |
+|---|---|
+| CPU | AMD Ryzen 7 7840H with Radeon 780M Graphics |
+| CPU topology | 8 cores / 16 logical CPUs |
+| Kernel | Linux 7.0.0-38-generic |
+| Build configuration | Release |
+| CPU governor | `performance` |
+| CPU boost | Enabled |
+| Clocksource | `hpet`; available: `hpet`, `acpi_pm` |
+| Producer / consumer affinity | CPU 0 / CPU 2 |
+| Environment snapshot timestamp | 2026-10-26 20:35:17 +0800 |
+| Snapshot commit field | `a2ec19d-dirty` |
+| Throughput JSON timestamp | 2026-10-26 20:35:20 +0800 |
+| Latency JSON timestamp | 2026-10-26 20:40:21 +0800 |
 
-Key observations:
+Single-element throughput and batch throughput each use 15 repetitions. The benchmark processed-item counter counts transferred elements. The throughput table therefore uses **million elements transferred per second (M elements/s)**.
 
-1. In this test, RB3 achieved approximately **6.4–6.7×** the reported throughput of RB2 at capacities 64, 1024, and 4096.
-2. RB6 reached approximately **2.45 G ops/s** in reported throughput at batch size 256. A complete element transfer consists of one push and one pop, so the complete-transfer rate is approximately half the reported value, or **1.23 G ops/s**.
-3. Cache-line alignment, bitwise index wrapping, and the `memcpy` fast path did not show a stable, independently attributable throughput improvement across all capacities.
-4. Saturated latency results cluster around two main levels, approximately 1.19 µs and 2.38 µs. This suggests that scheduling, retry behavior, or timer resolution may significantly affect the measurements; the current design cannot distinguish nanosecond-scale queue-latency differences.
+CV is population standard deviation divided by the mean across the 15 per-run measurements, expressed as a percentage.
 
-## Environment and Measurement Method
+The ping-pong latency benchmark performs 100,000 round trips per run, skips 1,000 warm-up round trips, and samples every tenth round trip (approximately 9,900 samples per run). It measures the interval from the producer's initial enqueue until the echoed token returns, then divides the round-trip interval by two to estimate one-way handoff latency. The latency table reports the median of each per-run percentile across 15 repetitions. The final column is the median of the per-run maximums.
 
-- **Platform**: Ubuntu 26.04.
-- **CPU**: AMD Ryzen 7 (8 cores, 16 threads, Zen 4).
-- **Frequency**: 4.82 GHz (reported in the log). This is metadata only and does not mean the frequency remained fixed during the test.
-- **Compiler/build**: GCC 11.4, Release, `-O3`.
-- **Tool**: Google Benchmark; `Repetitions(15)`, `ReportAggregatesOnly(true)`, and `UseRealTime`; tables report medians.
-- **Counting convention**: `SetItemsProcessed` counts each push and each pop as one item. Reported throughput is the combined count of push and pop operations; the complete element-transfer rate is approximately half the reported value.
-- **Reciprocal rate**: This is the reciprocal of reported throughput under the counting convention above. It is **not a direct measurement of the latency of a single push/pop or an end-to-end transfer**.
-- **Different payloads**: The latency test uses a 24-byte `TimeItem` (sequence number, timestamp, and flag), while the throughput test uses an 8-byte `size_t`. Their absolute values cannot be directly compared.
-- **RB1 excluded**: The ordinary non-atomic-index version contains a data race/undefined behavior (UB) and cannot serve as a valid performance baseline.
-- **Noise**: Code layout, compiler-generated code, CPU frequency changes, scheduling, and system load may all affect the results. Without additional validation, small differences cannot be attributed to a single optimization.
+## 3. Single-Element Throughput
 
-## Single-Element Throughput
+Median throughput in M elements/s; CV shown in parentheses.
 
-The following are medians over 15 repetitions per configuration. `M/s` means millions of reported items per second. Push and pop are counted separately, so these values are not complete element transfers per second.
+| Variant | Capacity 64 | Capacity 1024 | Capacity 4096 |
+|---|---:|---:|---:|
+| RB2 | 15.8 (0.2%) | 16.3 (1.6%) | 15.8 (0.3%) |
+| RB3 | 146.4 (0.1%) | 142.1 (1.4%) | 145.0 (0.2%) |
+| RB4 | 148.7 (0.2%) | 150.2 (0.6%) | 144.9 (0.5%) |
+| RB5 | 172.1 (0.3%) | 155.9 (0.4%) | 141.1 (0.5%) |
+| RB6 | 172.6 (0.2%) | 155.1 (0.6%) | 140.8 (0.3%) |
+| RB7 | 323.7 (0.2%) | 172.0 (2.8%) | 154.1 (0.3%) |
+| RB7_2 | 218.7 (0.5%) | 249.3 (2.4%) | 238.4 (0.4%) |
 
-| Variant | Capacity | Reported throughput | Reciprocal rate | CV (real time) |
-|:---|---:|---:|---:|:---:|
-| RB2 — `seq_cst` | 64 | 44.21 M/s | 22.6 ns | 3.0–5.8% |
-| | 1024 | 43.47 M/s | 23.0 ns | 3.0% |
-| | 4096 | 42.01 M/s | 23.8 ns | 3.0% |
-| RB3 — `acquire`/`release` | 64 | 284.60 M/s | 3.51 ns | 2.1% |
-| | 1024 | 285.02 M/s | 3.51 ns | 1.5% |
-| | 4096 | 282.97 M/s | 3.53 ns | 1.2% |
-| RB4 — cache-line alignment | 64 | 285.78 M/s | 3.50 ns | 1.1% |
-| | 1024 | 282.30 M/s | 3.54 ns | 0.6% |
-| | 4096 | 267.64 M/s | 3.74 ns | 0.5% |
-| RB5 — bitwise index wrapping | 64 | 289.50 M/s | 3.45 ns | 0.7% |
-| | 1024 | 278.95 M/s | 3.58 ns | 0.9% |
-| | 4096 | 266.42 M/s | 3.75 ns | 0.8% |
-| RB6 — `memcpy` | 64 | 328.70 M/s | 3.04 ns | 1.1% |
-| | 1024 | 291.16 M/s | 3.43 ns | 2.0% |
-| | 4096 | 259.02 M/s | 3.86 ns | 1.5% |
-| RB7 — compile-time hardening | 64 | 329.36 M/s | 3.04 ns | 1.4% |
-| | 1024 | 287.80 M/s | 3.47 ns | 1.8% |
-| | 4096 | 257.04 M/s | 3.89 ns | 1.7% |
+### Numeric observations
 
-### Interpretation
+- RB3 / RB2 throughput ratio: **9.27×** at capacity 64, **8.72×** at capacity 1024, and **9.18×** at capacity 4096.
+- RB7 / RB2 throughput ratio: **20.49×** at capacity 64, **10.55×** at capacity 1024, and **9.75×** at capacity 4096.
+- At capacity 64, RB7 recorded **323.7 M elements/s**, the highest value in this single-element table.
+- At capacities 1024 and 4096, RB7_2 recorded **249.3 M** and **238.4 M elements/s**, respectively.
+- Across the seven variants, listed single-element throughput CV values range from **0.1% to 2.8%**.
 
-1. **Memory ordering shows the largest difference.** RB3 achieved approximately 6.4×, 6.6×, and 6.7× the reported throughput of RB2 at capacities 64, 1024, and 4096, respectively.
-2. **Cache-line alignment did not provide a consistent independent throughput gain.** RB4 was faster in some capacities and slower in others relative to RB3, so these results do not justify claiming that padding always improves performance.
-3. **Bitwise index wrapping did not show a stable throughput improvement.** Disassembly can confirm changes to the instruction path, but an instruction-level change does not necessarily produce a measurable performance gain.
-4. **The effect of `memcpy` depends on the configuration.** RB6 was faster at smaller capacities but slower than RB5 at capacity 4096, so it cannot be described as a universal speedup.
-5. **RB7's main value is compile-time constraint enforcement.** The throughput difference between RB7 and RB6 is small and changes direction with capacity. Compile-time checks such as `static_assert` do not add runtime operations; the impact of allocator constraints should be evaluated against the specific code and generated machine code.
+## 4. Batch Throughput
 
-## Batch Throughput
+Capacity is 4096 elements. Values are median M elements/s across 15 repetitions; CV is shown separately.
 
-Capacity is fixed at 4096. Reported throughput counts push and pop separately; the complete element-transfer rate is approximately half the reported value.
+| Batch size | RB6 median | RB6 CV | RB7 median | RB7 CV |
+|---:|---:|---:|---:|---:|
+| 8 | 312.3 | 12.7% | 322.1 | 11.8% |
+| 32 | 874.6 | 8.3% | 875.5 | 13.7% |
+| 64 | 914.3 | 14.0% | 913.5 | 15.7% |
+| 256 | 1261.2 | 9.6% | 1374.3 | 3.2% |
 
-| Batch size | RB6 reported throughput (median) | RB7 reported throughput (median) | CV (RB6) |
-|:--:|--:|--:|--:|
-| 8 | 551.41 M/s | 570.99 M/s | 15.5% |
-| 32 | 1.6379 G/s | 1.6441 G/s | 0.6% |
-| 64 | 1.7572 G/s | 1.7711 G/s | 0.5% |
-| 256 | 2.4509 G/s | 2.4952 G/s | 1.8% |
+### Numeric observations
 
-Relative to RB6's single-element reported throughput at capacity 4096, batch sizes 8, 32, 64, and 256 achieved approximately **2.1×, 6.3×, 6.8×, and 9.5×**, respectively. Growth is not linear, and larger batches are not guaranteed to continue scaling proportionally.
+- RB7 batch throughput rises from **322.1 M elements/s** at batch size 8 to **1374.3 M elements/s** at batch size 256.
+- For RB7, the batch-size-256 result is approximately **8.92×** its single-element result at capacity 4096 (`1374.3 / 154.1`).
+- At batch size 32, RB6 and RB7 report **874.6 M** and **875.5 M elements/s**.
+- At batch size 64, RB6 and RB7 report **914.3 M** and **913.5 M elements/s**.
+- At batch size 256, RB7 reports **1374.3 M elements/s**, compared with **1261.2 M elements/s** for RB6.
+- The listed CV values range from **3.2% to 15.7%**; the lowest is RB7 at batch size 256.
 
-RB7's batch-throughput advantage over RB6 is approximately 0.4%–3.5%, which is insufficient to establish a stable performance advantage. Note that the coefficient of variation for batch size 8 is relatively high, so this result should be interpreted cautiously.
+## 5. Ping-Pong Latency
 
-## Saturated End-to-End Latency
+Values are nanoseconds. Each percentile is the median of that percentile across 15 runs. “Median per-run max” is the median of the maximum sample from each run.
 
-The latency test uses the `TimeItem` data structure and records the interval between a successful enqueue and the corresponding dequeue. The producer and consumer retry with `sched_yield()` when an operation cannot proceed. Approximately 10,000 elements are sampled per run, with 15 runs per configuration.
+| Variant | Capacity | p50 | p90 | p95 | p99 | Median per-run max |
+|---|---:|---:|---:|---:|---:|---:|
+| RB2 | 64 | 115 | 130 | 130 | 145 | 8836 |
+| RB2 | 1024 | 120 | 135 | 140 | 155 | 8901 |
+| RB2 | 4096 | 120 | 135 | 140 | 150 | 8891 |
+| RB3 | 64 | 110 | 115 | 115 | 130 | 8896 |
+| RB3 | 1024 | 110 | 115 | 115 | 135 | 8641 |
+| RB3 | 4096 | 110 | 115 | 115 | 130 | 8370 |
+| RB4 | 64 | 85 | 95 | 100 | 115 | 8566 |
+| RB4 | 1024 | 85 | 95 | 100 | 115 | 8295 |
+| RB4 | 4096 | 85 | 95 | 100 | 120 | 8641 |
+| RB5 | 64 | 85 | 90 | 95 | 110 | 8801 |
+| RB5 | 1024 | 85 | 90 | 95 | 105 | 8380 |
+| RB5 | 4096 | 85 | 90 | 95 | 110 | 8135 |
+| RB6 | 64 | 85 | 90 | 95 | 105 | 8556 |
+| RB6 | 1024 | 85 | 90 | 95 | 105 | 8661 |
+| RB6 | 4096 | 85 | 90 | 95 | 110 | 8475 |
+| RB7 | 64 | 80 | 90 | 90 | 110 | 8586 |
+| RB7 | 1024 | 80 | 90 | 90 | 105 | 8801 |
+| RB7 | 4096 | 80 | 90 | 90 | 110 | 8821 |
+| RB7_2 | 64 | 110 | 120 | 125 | 135 | 9167 |
+| RB7_2 | 1024 | 110 | 120 | 125 | 135 | 8886 |
+| RB7_2 | 4096 | 110 | 120 | 125 | 135 | 9032 |
 
-| Configuration | p50 | p90 | p95 | p99 | max (median run) |
-|:--|--:|--:|--:|--:|--:|
-| RB2–RB7, most capacities | 1.188 µs | 2.375 µs | 2.375 µs | 2.375 µs | approximately 19–77 µs |
+### Numeric observations
 
-*RB2 at capacity 4096 is an exception: the reported median p99 is approximately 3.56 µs, the mean is approximately 10.3 µs, and the CV is approximately 125%.*
+- RB7's p50 is **80 ns** at all three tested capacities.
+- RB7's p99 is **105 ns** at capacity 1024 and **110 ns** at capacities 64 and 4096.
+- RB7_2's p50 is **110 ns** at all three tested capacities.
+- The median per-run maximum values in this table range from **8135 ns to 9167 ns**.
+- For the same capacity, RB7's listed p50 is **30 ns lower** than RB7_2's at capacities 64, 1024, and 4096.
 
-### Latency Limitations
+## 6. Archived Correctness Test Result
 
-- The concentration of percentiles around approximately 1.19 µs and 2.38 µs suggests that scheduling, retry cadence, or timer resolution may dominate the current measurements.
-- These results **do not by themselves prove** that each bucket corresponds exactly to one or two `sched_yield()` round trips, nor do they prove that tail latency is entirely caused by operating-system preemption.
-- Nanosecond-scale differences between queue operations are much smaller than the observed microsecond-scale buckets, so the current design is not suitable for distinguishing small latency differences between implementations.
-- Future work could use a different retry strategy, a dedicated latency-test design, and queue-occupancy tracking to better distinguish scheduling behavior from queue-residence time.
+The archived `ctest.log` records **11 tests passed, 0 tests failed**.
 
-## Conclusions
+## 7. Data Files
 
-- Under the current test conditions, `acquire`/`release` shows the largest single-element throughput difference compared with `seq_cst`.
-- The Batch API substantially increases reported throughput, indicating that batch operations can amortize some synchronization and call overhead; the gains diminish as batch size increases.
-- Cache-line alignment, bitwise index wrapping, the `memcpy` fast path, and compile-time constraints did not provide stable, independently attributable throughput improvements at every capacity.
-- Current latency results are significantly affected by saturated thread interaction and the measurement method, and are insufficient to support fine-grained queue-latency conclusions.
-
-## Known Limitations and Future Work
-
-- Throughput results may be affected by CPU frequency, temperature, system scheduling, compiler version, and code layout.
-- The latency test needs further validation of its timing and retry strategy; the current results should not be used for fine-grained latency comparisons.
-- A performance benchmark does not itself prove thread safety or real-time safety. See the unit tests for correctness testing.
-- For cross-session stability comparisons, preserve the raw results and repeat tests with the same compiler, build flags, and environment. Small-sample observations do not prove a causal relationship between padding and stability.
-
-## Reproducing the Benchmark
-
-The following command selects the `performance` governor to reduce the effect of governor policy on frequency changes (and to eliminate the `CPU scaling is enabled` warning during benchmark builds). Turbo/boost behavior, temperature, and power limits may still cause frequency changes.
-
-```bash
-sudo cpupower frequency-set -g performance
-
-cmake -B build/ -DCMAKE_BUILD_TYPE=Release
-cmake --build build/ --config Release --target ring_buffer_bench
-
-./build/benchmarks/ring_buffer_bench \\
-  --benchmark_out=benchmark_results.json \\
-  --benchmark_out_format=json \\
-  2>&1 | tee benchmark_console.txt
-```
+- [Archived throughput JSON](benchmark_data/archived/throughput.json)
+- [Archived latency JSON](benchmark_data/archived/latency.json)
+- [Archived environment snapshot](benchmark_data/archived/env_snapshot.txt)
+- [Archived CTest output](benchmark_data/archived/ctest.log)
+- [Archived generated data tables](benchmark_data/archived/data.md)
