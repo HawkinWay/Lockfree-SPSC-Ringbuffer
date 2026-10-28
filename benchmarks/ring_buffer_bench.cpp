@@ -33,20 +33,6 @@ static inline void cpuRelax() noexcept {
 #endif
 }
 
-// ---- CPU pinning ----------------------------------------------------------
-//
-// A queue microbenchmark is only reproducible if the two threads stay on two
-// known physical cores. Without pinning the scheduler may co-locate producer
-// and consumer on one core (turning the measurement into single-core
-// round-robin) or migrate them mid-run.
-//
-// Defaults: producer/main -> CPU 0, consumer -> CPU 2. These two are on
-// different physical cores under both common SMT enumerations -- (0,8)
-// siblings on AMD Zen, (0,1) siblings on some Intel parts. Verify on the
-// target box with:
-//     cat /sys/devices/system/cpu/cpu0/topology/thread_siblings_list
-// and override without recompiling:
-//     SPSC_PRODUCER_CPU=4 SPSC_CONSUMER_CPU=6 ./ring_buffer_bench ...
 static void pinCurrentThread(int cpu) {
 #if defined(__linux__)
     if (cpu < 0) return;
@@ -87,23 +73,7 @@ static_assert(std::is_trivially_copyable_v<TimeItem>, "TimeItem must be triviall
 
 using Clock = std::chrono::steady_clock;
 
-// Timestamping for sub-microsecond latency measurement.
-//
-// std::chrono::steady_clock can be HPET-backed (e.g. when the kernel drops
-// the TSC clocksource, as on this machine: /sys/.../current_clocksource =
-// hpet). Each read then costs ~1.2 us and the value only advances in ~1.2 us
-// ticks, which quantizes every measured interval into multiples of the tick:
-// a real 300 ns handoff gets reported as 0, 1187, or 2375 ns.
-//
-// On x86 the invariant TSC (constant_tsc + nonstop_tsc) reads in ~20 ns with
-// sub-nanosecond granularity, so it is used instead and calibrated once
-// against steady_clock over a 200 ms busy wait.
 struct LatencyClock {
-    // Serializing fences bracket the read, and the "memory" clobber pins the
-    // whole sequence in place: without it the compiler is free to sink the
-    // t0 read below the measured queue operations (intrinsics like
-    // __rdtscp/_mm_lfence are not compiler barriers in GCC), which collapses
-    // the measured interval to the cost of two back-to-back reads.
     static uint64_t cyclesNow() noexcept {
 #if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
         uint32_t lo, hi, aux;
@@ -199,6 +169,8 @@ static void BM_SPSC_Throughput(benchmark::State& state) {
         consumer.join();
     }
 
+    state.counters["sizeof_queue"] = static_cast<double>(sizeof(Queue));
+    state.counters["obj_mod64"] = static_cast<double>(reinterpret_cast<std::uintptr_t>(&buffer) % 64);
     state.SetItemsProcessed(state.iterations() * static_cast<int64_t>(total_operations));
 }
 
@@ -266,31 +238,17 @@ static void BM_SPSC_BatchThroughput(benchmark::State& state) {
         consumer.join();
     }
 
+    state.counters["sizeof_queue"] = static_cast<double>(sizeof(Queue));
+    state.counters["obj_mod64"] = static_cast<double>(reinterpret_cast<std::uintptr_t>(&buffer) % 64);
     state.SetItemsProcessed(static_cast<int64_t>(state.iterations()) * static_cast<int64_t>(total_operations));
 }
 
-// Round-trip (ping-pong) latency at zero backlog.
-//
-// The producer sends one token and waits until the consumer echoes it back:
-//
-//   producer                            consumer
-//   --------                            --------
-//   t0 = timestamp
-//   push(token)  ->  to_consumer  ->   pop(token)
-//                                       push(token)  ->  to_producer
-//   pop(echo)    <-  to_producer  <-    (repeat)
-//   t1 = timestamp
-//
-// Both queues hold at most one item, so the token never waits behind a
-// backlog and no retry loop sits on the measured path: each round trip is
-// two pure push->pop handoffs of an empty queue.  The reported percentiles
-// are RTT / 2, i.e. the estimated one-way push->pop latency.
 template <typename Queue>
 static void BM_SPSC_RoundTripLatency(benchmark::State& state) {
     const auto capacity = static_cast<size_t>(state.range(0));
     constexpr uint64_t round_trips = 100'000;
-    constexpr uint64_t warmup_round_trips = 1'000;  // skip cold-start outliers
-    constexpr uint64_t sample_stride = 10;          // -> 9,900 samples per run
+    constexpr uint64_t warmup_round_trips = 1'000;
+    constexpr uint64_t sample_stride = 10;
 
     const int main_cpu = cpuFromEnv("SPSC_MAIN_CPU", 0);
     const int consumer_cpu = cpuFromEnv("SPSC_CONSUMER_CPU", 2);
@@ -368,12 +326,13 @@ static void BM_SPSC_RoundTripLatency(benchmark::State& state) {
         state.ResumeTiming();
     }
 
+    state.counters["sizeof_queue"] = static_cast<double>(sizeof(Queue));
+    state.counters["obj_mod64"] = static_cast<double>(reinterpret_cast<std::uintptr_t>(&to_consumer) % 64);
     state.counters["p50_ns"] = static_cast<double>(p50);
     state.counters["p90_ns"] = static_cast<double>(p90);
     state.counters["p95_ns"] = static_cast<double>(p95);
     state.counters["p99_ns"] = static_cast<double>(p99);
     state.counters["max_ns"] = static_cast<double>(max_latency);
-    // Clock calibration factor, so a report shows which timer was actually used.
     state.counters["tsc_ns_per_cycle"] = LatencyClock::nsPerCycle();
 }
 
@@ -422,6 +381,7 @@ REGISTER_LATENCY_BENCHMARK(RB4<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB5<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB6<TimeItem>);
 REGISTER_LATENCY_BENCHMARK(RB7<TimeItem>);
+REGISTER_LATENCY_BENCHMARK(RB7_2<TimeItem>);
 
 BENCHMARK_MAIN();
 
